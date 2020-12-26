@@ -1,14 +1,19 @@
 # Singular/GPI-Space Framework
 
-The Singular/GPI-Space Framework aims at massively parallel computations in computer algebra. It uses the computer algebra system [Singular](https://www.singular.uni-kl.de/) in conjunction with the workflow management system [GPI-Space](). While Singular provides the user frontend and computatinal backend, the coordination of the computations is done with GPI-Space. Parallel algorithms are modeled in terms of Petri nets.
+The Singular/GPI-Space Framework aims at massively parallel computations in computer algebra. It uses the computer algebra system [Singular](https://www.singular.uni-kl.de/) in conjunction with the workflow management system [GPI-Space](http://www.gpi-space.de/). While Singular provides the user frontend and computatinal backend, the coordination of the computations is done with GPI-Space. Parallel algorithms are modeled in terms of Petri nets.
 
 The Singular/GPI-Space Framework has been used, for example, to determine smoothness of algebraic varieties, to compute GIT-fans, to compute tropicalizations of algebraic varieties, and to compute integration-by-parts relations for Feynman integrals in high energy physics.
 
 For more information, see the webpage of the [Singular/GPI-Space Framework](https://www.mathematik.uni-kl.de/~boehm/singulargpispace/).
 
 
-With an (open source version of GPI-Space)[https://github.com/cc-hpc-itwm/gpispace] now available, this repository is the ongoing effort to make our code publicly available, this being the first version and part of the code. It contains simple programming primitives and as an example the code to test smoothnes of algebraic varieties.
+With an [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) now available, this repository is the ongoing effort to make our code publicly available, this being the first version and part of the code. It contains simple programming primitives and as an example the code to test smoothnes of algebraic varieties. For details on the smoothness test, please refer to the paper [Towards Massively Parallel Computations in Algebraic Geometry](https://link.springer.com/article/10.1007/s10208-020-09464-x), Found. Comput. Math. (2020).
 
+If you use the Singular/GPI-Space framework, please cite the paper
+
+J. Böhm, W. Decker, A. Frühbis-Krüger, F.-J. Pfreundt, M. Rahn, L. Ristau: [Towards Massively Parallel Computations in Algebraic Geometry](https://link.springer.com/article/10.1007/s10208-020-09464-x), Found. Comput. Math. (2020).
+
+as well as [Singular](https://www.singular.uni-kl.de/), [GPI-Space](http://www.gpi-space.de/), and the respective applications.
 
 In the following we give detailed step-by-step instructions how to describe how to install the Singular/GPI-Space Framework on a Linux System and give an example how to use it the smoothness test. This includes the installation of Singular, GPI-Space and of the necessary dependencies (for more details on this, please also refer to the respective web pages and repositories).
 
