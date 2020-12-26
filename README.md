@@ -35,18 +35,35 @@ export build_ROOT=/tmpbig/jb4
 export install_ROOT=/scratch/jb4
 ```
 
-## Installation of Singular:
+## Installation of flint:
 
-We install the version 4-2-0 of Singular, which will be required by our framework:
+We install the arithmetics and number theory library flint, which is used by Singular.
 
 ```bash
 cd ${build_ROOT}
-git clone --jobs $(nproc) --branch Release-4-2-0  https://github.com/Singular/Singular.git
+mkdir flint
+cd flint
+git clone https://github.com/wbhart/flint2.git flint2
+cd flint2
+./configure --with-gmp=/usr --prefix=${build_ROOT}/tmp --with-mpfr=/usr
+make -j $(nproc)
+make install
+export LD_LIBRARY_PATH=${build_ROOT}/tmp/lib
+```
+
+
+## Installation of Singular:
+
+We install the current version of Singular, which will be required by our framework:
+
+```bash
+cd ${build_ROOT}
+git clone --jobs $(nproc) https://github.com/Singular/Singular.git
 cd Singular
 ./autogen.sh
 mkdir ${build_ROOT}/sgbuild
 cd ${build_ROOT}/sgbuild
-${build_ROOT}/Singular/configure --prefix=${install_ROOT}/Singular420 --disable-static CXXFLAGS="-fno-gnu-unique"
+${build_ROOT}/Singular/configure --with-flint=${build_ROOT}/tmp --prefix=${install_ROOT}/Singular420 --disable-static CXXFLAGS="-fno-gnu-unique"
 make -j $(nproc)
 make install
 ```
