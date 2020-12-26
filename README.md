@@ -243,7 +243,7 @@ This
 
 Note that in more fancy environments like a cluster, one should specify absolute paths to the nodefile and the temp directory.
 
-Note that this computation can take a while, a minute or so on 16 workers.
+Note that this computation can take a while, a minute or so on 16 workers. It should return 1 for true. 
 
 ```bash
 LIB "smoothtestgspc.lib";
