@@ -31,8 +31,8 @@ GPI-Space currently supports the following Linux distributions:
 Set directories for the build process and the install directory. The first one should typically be a fast local directory while the latter should be a (network) directory which is accessible from all machines involved in using GPI-Space.
 
 ```bash
-export build_ROOT=/tmpbig/jb4
-export install_ROOT=/scratch/jb4
+export build_ROOT=/tmpbig/jb8
+export install_ROOT=/scratch/jb8
 ```
 
 ## Installation of flint:
@@ -179,9 +179,6 @@ ctest --output-on-failure                                         \
 ```bash
 cd ${build_ROOT}
 git clone git@github.com:singular-gpispace/smoothness-test.git
-cd smoothness-test
-git checkout 612fb0375185ebbb1269291ec15e640da397906e
-cd ..
 for i in cmake src/util-generic src/fhg/util/boost/program_options
 do
   mkdir -p smoothness-test/${i}
@@ -190,13 +187,6 @@ done
 cmake -DCMAKE_INSTALL_PREFIX=${install_ROOT}/smoothness -DCMAKE_BUILD_TYPE=Release -DGSPC_HOME=${GPISPACE_INSTALL_DIR} -DSINGULAR_HOME=${install_ROOT}/Singular420 -DINSTALL_DO_NOT_BUNDLE=ON -B smoothbuild -S smoothness-test
 cmake --build smoothbuild --target install -j $(nproc)
 ```
-
-This produces various files which have to be found by Singular to act as a frontend and computational backend. We copy the Singular library implementing the access from Singular to GPI-Space to the standard directory for libraries in our installation of Singular:
-
-```bash
-cp ${install_ROOT}/smoothness/share/singular/LIB/smoothtestgspc.lib ${install_ROOT}/Singular420/share/singular/LIB/smoothtestgspc.lib 
-```
-
 
 
 ## We try out the smoothness test.
@@ -214,7 +204,7 @@ cp ${build_ROOT}/smoothness-test/examples/campedelli.sing .
 ```
 
 
-Moreover, we need a directory for temporary files
+Moreover, we need a directory for temporary files, which should be accessible from all machines involved in the computation:
 
 ```bash
 mkdir ${install_ROOT}/temp
@@ -233,11 +223,27 @@ We start Singular and tell it where to find the library and the so file for the 
 
 ```bash
 cd ${install_ROOT}
-SINGULARPATH=${install_ROOT}/smoothness/libexec/singular/MOD/ ${install_ROOT}/Singular420/bin/Singular
+SINGULARPATH=${install_ROOT}/smoothness ${install_ROOT}/Singular420/bin/Singular
 ```
 
 
-In Singular do the following:
+In Singular do what follows below.
+
+This 
+* loads the library giving access to the smoothness test, 
+* loads an example ideal of a Campedelli surface, then 
+* creates a configuration token for the Singular/GPI-Space framework, 
+  * adds information where to store temporary data, 
+  * and where to find the nodefile, and 
+  * sets how many processes per node should be started (usually one per core, not taking hyper-threading into account, you may have to adjust according to your hardware),
+* creates a configuration token for the smoothness test,  
+  * adds information on whether the input ideal is to be considered in projective space (or affine space), 
+  * at which codimension the descent with Hironaka's criterion should stop and the standard Jacobian cirterion should be used, and finally 
+* starts the computation.
+
+Note that in more fancy environments like a cluster, one should specify absolute paths to the nodefile and the temp directory.
+
+Note that this computation can take a while, a minute or so on 16 workers.
 
 ```bash
 LIB "smoothtestgspc.lib";
@@ -252,14 +258,3 @@ sc.options.codimlimit = 2;
 def result = smoothtest(I,gc,sc);
 ```
 
-This 
-* loads the library giving access to the smoothness test, 
-* it loads and example ideal of a Campedelli surface, then 
-* creates a configuration token for the Singualr/GPI-Space framework, 
-* adds information where to store temporary data, and 
-* where to find the nodefile, 
-* it sets how many processes per node should be started (usually one per core, not taking hyper-threading into account), 
-* it creates a configuration token for the smoothness test, 
-* adds information on whether the input ideal is to be considered in projective space (or affine space), 
-* at which codimension the descent with Hironaka's criterion should stop and the standard Jacobian cirterion should be used, and finally 
-* starts the computation.
