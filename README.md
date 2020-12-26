@@ -55,7 +55,9 @@ export LD_LIBRARY_PATH=${build_ROOT}/tmp/lib
 
 ## Installation of Singular:
 
-We install the current version of Singular, which will be required by our framework:
+We install the current version of Singular, which will be required by our framework.
+
+Besides flint, Singular has various more standard dependencies, which are usually available through the package manager of your distribution. Please refer to the  [step-by-step instructions to build Singular](https://github.com/Singular/Singular/wiki/Step-by-Step-Installation-Instructions-for-Singular) for more details.
 
 ```bash
 cd ${build_ROOT}
@@ -125,7 +127,9 @@ grep "^CC\s*=\s*gcc$" . -lR | xargs sed -i'' -e '/^CC\s*=\s*gcc$/d'
 
 ## Install GPI-Space
 
-We install GPI-Space version 20.12, which will be used by our framework:
+We install GPI-Space version 20.12, which will be used by our framework.
+
+Besides boost, GPI-2, and libssh, it has various more standard dependencies, which are usually available through the package manager of your distribution. Please refer to the installation instructions of the [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) for more details.
 
 ```bash
 gpispace_version=20.12
