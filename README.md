@@ -17,13 +17,14 @@ as well as [Singular](https://www.singular.uni-kl.de/), [GPI-Space](http://www.g
 
 In the following we give detailed step-by-step instructions how to describe how to install the Singular/GPI-Space Framework on a Linux System and give an example how to use it the smoothness test. This includes the installation of Singular, GPI-Space and of the necessary dependencies (for more details on this, please also refer to the respective web pages and repositories).
 
-GPI-Space currently supports the following Linux distributions:
+GPI-Space currently actively supports and tests the following Linux distributions:
 * Centos 6
 * Centos 7
 * Centos 8
 * Ubuntu 18.04 LTS
 * Ubuntu 20.04 LTS
 
+Similar distributions should also work. We occasionally also build on Gentoo. If you want to install on larger (pools of) machines, Centos is a good choice.
 
 
 ## Source and installation directories
