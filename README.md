@@ -192,7 +192,7 @@ do
   cp -R gpispace/${i}/* framework/${i}
 done
 cmake -DCMAKE_INSTALL_PREFIX=${install_ROOT}/framework -DCMAKE_BUILD_TYPE=Release -DGSPC_HOME=${GPISPACE_INSTALL_DIR} -DSINGULAR_HOME=${install_ROOT}/Singular420 -DINSTALL_DO_NOT_BUNDLE=ON -B frameworkbuild -S framework
-cmake --build smoothbuild --target install -j $(nproc)
+cmake --build frameworkbuild --target install -j $(nproc)
 ```
 
 
