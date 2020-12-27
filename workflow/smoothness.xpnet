@@ -1,0 +1,893 @@
+<defun name="smoothness">
+
+  <struct name="smoothness_task">
+    <field name="ambient_ideal" type="string"/>
+    <field name="variety_ideal" type="string"/>
+    <field name="exclusion_poly" type="string"/>
+    <field name="flag" type="bool"/>
+    <field name="codimension" type="int"/>
+    <field name="source_chart" type="int"/>
+  </struct>
+
+  <struct name="jacobi_task">
+    <field name="sm_task" type="smoothness_task"/>
+    <field name="combination" type="int"/>
+  </struct>
+
+  <struct name="list_with_int">
+    <field name="l" type="list"/>
+    <field name="i" type="int" />
+  </struct>
+
+  <struct name="map_with_int">
+    <field name="m" type="map"/>
+    <field name="i" type="int"/>
+  </struct>
+
+  <struct name="jacobi_list">
+    <field name="sm_task" type="smoothness_task"/>
+    <field name="minor_list" type="list"/>
+  </struct>
+
+  <struct name="rnd_opt_struct">
+    <field name="rnd_coeff_max" type="int"/>
+    <field name="rnd_tries" type="unsigned long"/>
+    <field name="max_zero_tries" type="unsigned long"/>
+  </struct>
+
+  <in name="implementation" type="string" place="implementation"/>
+  <in name="input_ideal" type="string" place="input_ideal"/>
+  <in name="is_projective" type="bool" place="is_projective"/>
+  <in name="codimension_limit" type="int" place="codimension_limit"/>
+  <in name="desc_rnd_coeff_max" type="int" place="desc_rnd_coeff_max"/>
+  <in name="desc_rnd_tries" type="unsigned long" place="desc_rnd_tries"/>
+  <in name="desc_max_zero_tries" type="unsigned long" place="desc_max_zero_tries"/>
+  <in name="split_heuristics_options" type="unsigned long" place="split_heuristics_options"/>
+  <in name="logging_level" type="int" place="logging_level"/>
+  <out name="result" type="bool" place="result"/>
+  <net>
+    <place name="implementation" type="string"/>
+    <place name="heureka_file" type="string"/>
+    <place name="remaining_variety" type="string"/>
+    <place name="input_ideal" type="string"/>
+    <place name="temp_result" type="bool"/>
+    <place name="result" type="bool"/>
+    <place name="tuples_at_beginning" type="smoothness_task"/>
+    <place name="tuples_after_trivial" type="smoothness_task"/>
+    <place name="tuples_after_delta" type="smoothness_task"/>
+    <place name="tuples_before_jacobi" type="jacobi_task"/>
+    <place name="tuples_after_jacobi" type="jacobi_task"/>
+    <place name="lists_for_descent" type="list_with_int"/>
+    <place name="lists_for_jacobi" type="jacobi_list"/>
+    <place name="map_of_waiting_tuples" type="map"/>
+    <place name="map_of_remaining_tuples" type="map"/>
+    <place name="map_about_decrease" type="map_with_int"/>
+    <place name="cleanup_about_decrease" type="map_with_int"/>
+    <place name="map_with_checkresult" type="map_with_int"/>
+    <place name="list_of_start_ideals" type="list"/>
+    <place name="map_for_start_ideals" type="map"/>
+    <place name="is_projective" type="bool"/>
+    <place name="codimension_limit" type="int"/>
+    <place name="desc_rnd_coeff_max" type="int"/>
+    <place name="desc_rnd_tries" type="unsigned long"/>
+    <place name="desc_max_zero_tries" type="unsigned long"/>
+    <place name="desc_rnd_options" type="rnd_opt_struct"/>
+    <place name="split_heuristics_options" type="unsigned long"/>
+    <place name="logging_level" type="int"/>
+
+    <transition name="initialize">
+      <defun>
+        <require key="administration" mandatory="true"/>
+        <in name="input_ideal" type="string"/>
+        <in name="implementation" type="string"/>
+        <in name="is_projective" type="bool"/>
+        <in name="codimension_limit" type="int"/>
+        <in name="desc_rnd_coeff_max" type="int"/>
+        <in name="desc_rnd_tries" type="unsigned long"/>
+        <in name="desc_max_zero_tries" type="unsigned long"/>
+        <in name="logging_level" type="int"/>
+        <out name="list_of_start_ideals" type="list"/>
+        <out name="map_for_start_ideals" type="map"/>
+        <out name="heureka_file" type="string"/>
+        <out name="remaining_variety" type="string"/>
+        <out name="desc_rnd_options" type="rnd_opt_struct"/>
+        <module name="singular_smoothness" function="init (implementation,
+          input_ideal, list_of_start_ideals, map_for_start_ideals,
+          is_projective, heureka_file, remaining_variety, codimension_limit,
+          desc_rnd_coeff_max, desc_rnd_tries, desc_max_zero_tries,
+          desc_rnd_options, logging_level)"
+          require_function_unloads_without_rest="false">
+          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="util-generic/dynamic_linking.hpp"/>
+          <cinclude href="we/type/value/wrap.hpp"/>
+          <cinclude href="pnetc/type/smoothness_task/op.hpp"/>
+          <code><![CDATA[
+          std::list<pnetc::type::smoothness_task::smoothness_task> ideal_list;
+          std::map<int, unsigned long> ideal_map;
+
+          fhg::util::scoped_dlhandle
+            (implementation, RTLD_GLOBAL | RTLD_NOW | RTLD_DEEPBIND)
+            .sym<decltype (singular_smoothness_init)> ("singular_smoothness_init")
+              ( input_ideal, is_projective, ideal_list, ideal_map,
+                heureka_file, remaining_variety, codimension_limit,
+                logging_level
+              );
+
+          list_of_start_ideals = pnet::type::value::wrap (ideal_list);
+          map_for_start_ideals = pnet::type::value::wrap (ideal_map);
+
+          desc_rnd_options.rnd_coeff_max = desc_rnd_coeff_max;
+          desc_rnd_options.rnd_tries = desc_rnd_tries;
+          desc_rnd_options.max_zero_tries = desc_max_zero_tries;
+          ]]></code>
+        </module>
+      </defun>
+      <connect-read port="implementation" place="implementation"/>
+      <connect-read port="codimension_limit" place="codimension_limit"/>
+      <connect-read port="logging_level" place="logging_level"/>
+      <connect-in port="input_ideal" place="input_ideal"/>
+      <connect-in port="is_projective" place="is_projective"/>
+      <connect-in port="desc_rnd_coeff_max" place="desc_rnd_coeff_max"/>
+      <connect-in port="desc_rnd_tries" place="desc_rnd_tries"/>
+      <connect-in port="desc_max_zero_tries" place="desc_max_zero_tries"/>
+      <connect-out port="list_of_start_ideals" place="list_of_start_ideals"/>
+      <connect-out port="map_for_start_ideals" place="map_for_start_ideals"/>
+      <connect-out port="heureka_file" place="heureka_file"/>
+      <connect-out port="remaining_variety" place="remaining_variety"/>
+      <connect-out port="desc_rnd_options" place="desc_rnd_options"/>
+    </transition>
+
+    <transition name="finish_with_true">
+      <defun>
+        <in name="map_with_checkresult" type="map_with_int"/>
+        <out name="temp_result" type="bool"/>
+        <condition>
+          ${map_with_checkresult.i} :eq: 1
+        </condition>
+        <expression>
+          ${temp_result} := true;
+        </expression>
+      </defun>
+      <connect-in port="map_with_checkresult" place="map_with_checkresult"/>
+      <connect-out port="temp_result" place="temp_result"/>
+    </transition>
+
+    <transition name="finish_with_false">
+      <defun>
+        <in name="map_of_remaining_tuples" type="map"/>
+        <out name="temp_result" type="bool"/>
+        <condition>
+          map_empty (${map_of_remaining_tuples})
+        </condition>
+        <expression>
+          ${temp_result} := false;
+        </expression>
+      </defun>
+      <connect-in port="map_of_remaining_tuples" place="map_of_remaining_tuples"/>
+      <connect-out port="temp_result" place="temp_result"/>
+    </transition>
+
+    <transition name="final_cleanup">
+      <defun>
+        <in name="implementation" type="string"/>
+        <in name="heureka_file" type="string"/>
+        <in name="remaining_variety" type="string"/>
+        <in name="codimension_limit" type="int"/>
+        <in name="temp_result" type="bool"/>
+        <in name="desc_rnd_options" type="rnd_opt_struct"/>
+        <in name="split_heuristics_options" type="unsigned long"/>
+        <in name="logging_level" type="int"/>
+        <out name="result" type="bool"/>
+        <expression>
+          ${result} := ${temp_result};
+        </expression>
+      </defun>
+      <connect-in port="implementation" place="implementation"/>
+      <connect-in port="heureka_file" place="heureka_file"/>
+      <connect-in port="remaining_variety" place="remaining_variety"/>
+      <connect-in port="codimension_limit" place="codimension_limit"/>
+      <connect-in port="temp_result" place="temp_result"/>
+      <connect-in port="desc_rnd_options" place="desc_rnd_options"/>
+      <connect-in port="split_heuristics_options" place="split_heuristics_options"/>
+      <connect-in port="logging_level" place="logging_level"/>
+      <connect-out port="result" place="result"/>
+    </transition>
+
+    <transition name="trivial_check">
+      <defun>
+        <require key="compute" mandatory="true"/>
+        <in name="implementation" type="string"/>
+        <in name="trivial_input" type="smoothness_task"/>
+        <in name="trivial_map_waiting" type="map"/>
+        <in name="heureka_file" type="string"/>
+        <in name="logging_level" type="int"/>
+        <out name="trivial_output" type="smoothness_task"/>
+        <module name="singular_smoothness" function="trivial (implementation,
+          trivial_input, trivial_output, heureka_file, logging_level)"
+          require_function_unloads_without_rest="false">
+          <cinclude href="fstream"/>
+          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="util-generic/dynamic_linking.hpp"/>
+          <code><![CDATA[
+          trivial_output = trivial_input;
+          if (std::ifstream (heureka_file).good())
+          {
+            trivial_output.flag = true;
+            return;
+          }
+
+          if (trivial_output.codimension == 0)
+          {
+            fhg::util::scoped_dlhandle
+              (implementation, RTLD_GLOBAL | RTLD_NOW | RTLD_DEEPBIND)
+              .sym<decltype (singular_smoothness_trivial)> ("singular_smoothness_trivial")
+                ( trivial_output, logging_level
+                );
+          }
+          else
+          {
+            trivial_output.flag = false;
+          }
+          ]]></code>
+        </module>
+      </defun>
+      <connect-read port="implementation" place="implementation"/>
+      <connect-read port="trivial_map_waiting" place="map_of_waiting_tuples"/>
+      <connect-read port="heureka_file" place="heureka_file"/>
+      <connect-read port="logging_level" place="logging_level"/>
+      <connect-in port="trivial_input" place="tuples_at_beginning"/>
+      <connect-out port="trivial_output" place="tuples_after_trivial"/>
+    </transition>
+
+    <transition name="remove_trivial_true">
+      <defun>
+        <in name="trivial_task" type="smoothness_task"/>
+        <in name="map_waiting" type="map"/>
+        <out name="map_decrease_int" type="map_with_int"/>
+        <condition>
+          ${trivial_task.flag} :eq: true
+        </condition>
+        <expression>
+          ${map_decrease_int.m} := ${map_waiting};
+          ${map_decrease_int.i} := ${trivial_task.source_chart};
+        </expression>
+      </defun>
+      <connect-in port="trivial_task" place="tuples_after_trivial"/>
+      <connect-in port="map_waiting" place="map_of_waiting_tuples"/>
+      <connect-out port="map_decrease_int" place="map_about_decrease"/>
+    </transition>
+
+    <transition name="remove_jacobi_true">
+      <defun>
+        <in name="jacobic_task" type="jacobi_task"/>
+        <in name="map_waiting" type="map"/>
+        <out name="map_decrease_int" type="map_with_int"/>
+        <condition>
+          ${jacobic_task.sm_task.flag} :eq: true
+        </condition>
+        <expression>
+          ${map_decrease_int.m} := ${map_waiting};
+          ${map_decrease_int.i} := ${jacobic_task.sm_task.source_chart};
+        </expression>
+      </defun>
+      <connect-in port="jacobic_task" place="tuples_after_jacobi"/>
+      <connect-in port="map_waiting" place="map_of_waiting_tuples"/>
+      <connect-out port="map_decrease_int" place="map_about_decrease"/>
+    </transition>
+
+    <transition name="delta_check">
+      <defun>
+        <require key="compute" mandatory="true"/>
+        <in name="implementation" type="string"/>
+        <in name="heureka_file" type="string"/>
+        <in name="delta_input" type="smoothness_task"/>
+        <in name="delta_map_waiting" type="map"/>
+        <in name="codimension_limit" type="int"/>
+        <in name="logging_level" type="int"/>
+        <out name="delta_output" type="smoothness_task"/>
+        <module name="singular_smoothness" function="delta (implementation,
+          delta_input, delta_output, heureka_file, logging_level)"
+          require_function_unloads_without_rest="false">
+          <cinclude href="fstream"/>
+          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="util-generic/dynamic_linking.hpp"/>
+          <code><![CDATA[
+          delta_output = delta_input;
+          if (std::ifstream (heureka_file).good())
+          {
+            delta_output.flag = true;
+            return;
+          }
+
+          fhg::util::scoped_dlhandle
+            (implementation, RTLD_GLOBAL | RTLD_NOW | RTLD_DEEPBIND)
+            .sym<decltype (singular_smoothness_delta)> ("singular_smoothness_delta")
+              ( delta_output, heureka_file, logging_level
+              );
+          ]]></code>
+        </module>
+        <condition>
+          (${delta_input.flag} :eq: false) :and:
+          (${delta_input.codimension} :gt: ${codimension_limit})
+        </condition>
+      </defun>
+      <connect-read port="implementation" place="implementation"/>
+      <connect-read port="delta_map_waiting" place="map_of_waiting_tuples"/>
+      <connect-read port="codimension_limit" place="codimension_limit"/>
+      <connect-read port="heureka_file" place="heureka_file"/>
+      <connect-read port="logging_level" place="logging_level"/>
+      <connect-in port="delta_input" place="tuples_after_trivial"/>
+      <connect-out port="delta_output" place="tuples_after_delta"/>
+    </transition>
+
+    <transition name="jacobi_check">
+      <defun>
+        <require key="compute" mandatory="true"/>
+        <in name="implementation" type="string"/>
+        <in name="heureka_file" type="string"/>
+        <in name="jacobi_input" type="jacobi_task"/>
+        <in name="jacobi_map_waiting" type="map"/>
+        <in name="logging_level" type="int"/>
+        <out name="jacobi_output" type="jacobi_task"/>
+        <module name="singular_smoothness" function="jacobi (implementation,
+          jacobi_input, jacobi_output, heureka_file, logging_level)"
+          require_function_unloads_without_rest="false">
+          <cinclude href="fstream"/>
+          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="util-generic/dynamic_linking.hpp"/>
+          <code><![CDATA[
+          jacobi_output = jacobi_input;
+          if (std::ifstream (heureka_file).good())
+          {
+            jacobi_output.sm_task.flag = true;
+            return;
+          }
+
+          fhg::util::scoped_dlhandle
+            (implementation, RTLD_GLOBAL | RTLD_NOW | RTLD_DEEPBIND)
+            .sym<decltype (singular_smoothness_jacobi)> ("singular_smoothness_jacobi")
+              ( jacobi_output, heureka_file, logging_level
+              );
+          ]]></code>
+        </module>
+      </defun>
+      <connect-read port="implementation" place="implementation"/>
+      <connect-read port="jacobi_map_waiting" place="map_of_waiting_tuples"/>
+      <connect-read port="heureka_file" place="heureka_file"/>
+      <connect-read port="logging_level" place="logging_level"/>
+      <connect-in port="jacobi_input" place="tuples_before_jacobi"/>
+      <connect-out port="jacobi_output" place="tuples_after_jacobi"/>
+    </transition>
+
+    <transition name="jacobi_split">
+      <defun>
+        <require key="compute" mandatory="true"/>
+        <in name="implementation" type="string"/>
+        <in name="heureka_file" type="string"/>
+        <in name="split_input" type="smoothness_task"/>
+        <in name="split_map_waiting" type="map"/>
+        <in name="codimension_limit" type="int"/>
+        <in name="heuristics_options" type="unsigned long"/>
+        <in name="logging_level" type="int"/>
+        <out name="split_output" type="jacobi_list"/>
+        <module name="singular_smoothness" function="jacobisplit
+          (implementation, split_input, split_output, heureka_file,
+          heuristics_options, logging_level)"
+          require_function_unloads_without_rest="false">
+          <cinclude href="fstream"/>
+          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="util-generic/dynamic_linking.hpp"/>
+          <cinclude href="we/type/value/wrap.hpp"/>
+          <cinclude href="pnetc/type/jacobi_task/op.hpp"/>
+          <code><![CDATA[
+          if (std::ifstream (heureka_file).good())
+          {
+            split_output.sm_task.source_chart = split_input.source_chart;
+            return;
+          }
+
+          fhg::util::scoped_dlhandle
+            (implementation, RTLD_GLOBAL | RTLD_NOW | RTLD_DEEPBIND)
+            .sym<decltype (singular_smoothness_jacobisplit)>
+              ("singular_smoothness_jacobisplit")
+              ( split_input
+              , split_output
+              , heuristics_options
+              , logging_level
+              );
+          ]]></code>
+        </module>
+        <condition>
+         (${split_input.flag} :eq: false) :and:
+         (${split_input.codimension} :le: ${codimension_limit})
+        </condition>
+      </defun>
+      <connect-read port="implementation" place="implementation"/>
+      <connect-read port="split_map_waiting" place="map_of_waiting_tuples"/>
+      <connect-read port="codimension_limit" place="codimension_limit"/>
+      <connect-read port="heureka_file" place="heureka_file"/>
+      <connect-read port="heuristics_options" place="split_heuristics_options"/>
+      <connect-read port="logging_level" place="logging_level"/>
+      <connect-in port="split_input" place="tuples_after_trivial"/>
+      <connect-out port="split_output" place="lists_for_jacobi"/>
+    </transition>
+
+    <transition name="heureka">
+      <defun>
+        <require key="administration" mandatory="true"/>
+        <in name="heureka_task" type="smoothness_task"/>
+        <in name="heureka_map_waiting" type="map"/>
+        <in name="heureka_file" type="string"/>
+        <in name="implementation" type="string"/>
+        <out name="heureka_map_remaining" type="map_with_int"/>
+        <module name="singular_smoothness" function="heureka (implementation,
+          heureka_task, heureka_map_waiting, heureka_map_remaining, heureka_file)"
+          require_function_unloads_without_rest="false">
+          <cinclude href="fstream"/>
+          <code><![CDATA[
+          std::ofstream h (heureka_file);
+          heureka_map_remaining.m = heureka_map_waiting;
+          heureka_map_remaining.i = heureka_task.source_chart;
+          ]]></code>
+        </module>
+        <condition>
+          ${heureka_task.flag} :eq: false
+        </condition>
+      </defun>
+      <connect-read port="implementation" place="implementation"/>
+      <connect-read port="heureka_file" place="heureka_file"/>
+      <connect-in port="heureka_task" place="tuples_after_delta"/>
+      <connect-in port="heureka_map_waiting" place="map_of_waiting_tuples"/>
+      <connect-out port="heureka_map_remaining" place="cleanup_about_decrease"/>
+    </transition>
+
+    <transition name="heureka_jacobi">
+      <defun>
+        <require key="administration" mandatory="true"/>
+        <in name="heureka_task" type="jacobi_task"/>
+        <in name="heureka_map_waiting" type="map"/>
+        <in name="heureka_file" type="string"/>
+        <in name="implementation" type="string"/>
+        <out name="heureka_map_remaining" type="map_with_int"/>
+        <module name="singular_smoothness" function="heureka_jacobi (implementation,
+          heureka_task, heureka_map_waiting, heureka_map_remaining, heureka_file)"
+          require_function_unloads_without_rest="false">
+          <cinclude href="fstream"/>
+          <code><![CDATA[
+          std::ofstream h (heureka_file);
+          heureka_map_remaining.m = heureka_map_waiting;
+          heureka_map_remaining.i = heureka_task.sm_task.source_chart;
+          ]]></code>
+        </module>
+        <condition>
+          ${heureka_task.sm_task.flag} :eq: false
+        </condition>
+      </defun>
+      <connect-read port="implementation" place="implementation"/>
+      <connect-read port="heureka_file" place="heureka_file"/>
+      <connect-in port="heureka_task" place="tuples_after_jacobi"/>
+      <connect-in port="heureka_map_waiting" place="map_of_waiting_tuples"/>
+      <connect-out port="heureka_map_remaining" place="cleanup_about_decrease"/>
+    </transition>
+
+    <transition name="prepare_descent">
+      <defun>
+        <require key="compute" mandatory="true"/>
+        <in name="implementation" type="string"/>
+        <in name="heureka_file" type="string"/>
+        <in name="prepare_input" type="smoothness_task"/>
+        <in name="prepare_map_waiting" type="map"/>
+        <in name="codimension_limit" type="int"/>
+        <in name="rnd_options" type="rnd_opt_struct"/>
+        <in name="logging_level" type="int"/>
+        <out name="prepare_tuples" type="list_with_int"/>
+        <module name="singular_smoothness" function="prepare (implementation,
+          prepare_input, prepare_tuples, heureka_file, rnd_options,
+          logging_level)" require_function_unloads_without_rest="false">
+          <cinclude href="fstream"/>
+          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="util-generic/dynamic_linking.hpp"/>
+          <cinclude href="we/type/value/wrap.hpp"/>
+          <code><![CDATA[
+          if (std::ifstream (heureka_file).good())
+          {
+            prepare_tuples.i = prepare_input.source_chart;
+            return;
+          }
+          std::list<pnetc::type::smoothness_task::smoothness_task> output_list;
+
+          fhg::util::scoped_dlhandle
+            (implementation, RTLD_GLOBAL | RTLD_NOW | RTLD_DEEPBIND)
+            .sym<decltype (singular_smoothness_descent)>
+              ("singular_smoothness_descent")
+              ( prepare_input
+              , output_list
+              , heureka_file
+              , rnd_options.rnd_coeff_max
+              , rnd_options.rnd_tries
+              , rnd_options.max_zero_tries
+              , logging_level
+              );
+
+          prepare_tuples.l = pnet::type::value::wrap (output_list);
+          prepare_tuples.i = prepare_input.source_chart;
+          ]]></code>
+        </module>
+        <condition>
+          (${prepare_input.flag} :eq: true) :and:
+          (${prepare_input.codimension} :gt: 1)
+        </condition>
+      </defun>
+      <connect-read port="implementation" place="implementation"/>
+      <connect-read port="prepare_map_waiting" place="map_of_waiting_tuples"/>
+      <connect-read port="codimension_limit" place="codimension_limit"/>
+      <connect-read port="heureka_file" place="heureka_file"/>
+      <connect-read port="rnd_options" place="desc_rnd_options"/>
+      <connect-read port="logging_level" place="logging_level"/>
+      <connect-in port="prepare_input" place="tuples_after_delta"/>
+      <connect-out port="prepare_tuples" place="lists_for_descent"/>
+    </transition>
+
+    <transition name="extract_task_from_descent_list">
+      <defun>
+        <inout name="task_list" type="list_with_int"/>
+        <inout name="map_waiting" type="map"/>
+        <out name="extracted_task" type="smoothness_task"/>
+        <condition>
+          stack_empty (${task_list.l}) :eq: false
+        </condition>
+        <expression>
+          ${extracted_task} := stack_top (${task_list.l});
+          ${task_list.l} := stack_pop (${task_list.l});
+          ${map_waiting} := map_assign (${map_waiting},
+            ${extracted_task.source_chart},
+            map_get_assignment (${map_waiting},
+            ${extracted_task.source_chart}) + 1UL);
+        </expression>
+      </defun>
+      <connect-inout port="task_list" place="lists_for_descent"/>
+      <connect-inout port="map_waiting" place="map_of_waiting_tuples"/>
+      <connect-out port="extracted_task" place="tuples_at_beginning"/>
+    </transition>
+
+    <transition name="extract_task_from_split_list">
+      <defun>
+        <inout name="task_list" type="jacobi_list"/>
+        <inout name="map_waiting" type="map"/>
+        <out name="extracted_task" type="jacobi_task"/>
+        <condition>
+          stack_empty (${task_list.minor_list}) :eq: false
+        </condition>
+        <expression>
+          ${extracted_task.sm_task} := ${task_list.sm_task};
+          ${extracted_task.combination} := stack_top (${task_list.minor_list});
+          ${task_list.minor_list} := stack_pop (${task_list.minor_list});
+          ${map_waiting} := map_assign (${map_waiting},
+            ${extracted_task.sm_task.source_chart},
+            map_get_assignment (${map_waiting},
+            ${extracted_task.sm_task.source_chart}) + 1UL);
+        </expression>
+      </defun>
+      <connect-inout port="task_list" place="lists_for_jacobi"/>
+      <connect-inout port="map_waiting" place="map_of_waiting_tuples"/>
+      <connect-out port="extracted_task" place="tuples_before_jacobi"/>
+    </transition>
+
+    <transition name="remove_empty_descent_list">
+      <defun>
+        <in name="task_list" type="list_with_int"/>
+        <in name="map_waiting" type="map"/>
+        <out name="map_decrease_int" type="map_with_int"/>
+        <condition>
+          stack_empty (${task_list.l}) :eq: true
+        </condition>
+        <expression>
+          ${map_decrease_int.m} := ${map_waiting};
+          ${map_decrease_int.i} := ${task_list.i};
+        </expression>
+      </defun>
+      <connect-in port="map_waiting" place="map_of_waiting_tuples"/>
+      <connect-out port="map_decrease_int" place="map_about_decrease"/>
+      <connect-in port="task_list" place="lists_for_descent"/>
+    </transition>
+
+    <transition name="remove_empty_split_list">
+      <defun>
+        <in name="task_list" type="jacobi_list"/>
+        <in name="map_waiting" type="map"/>
+        <out name="map_decrease_int" type="map_with_int"/>
+        <condition>
+          stack_empty (${task_list.minor_list}) :eq: true
+        </condition>
+        <expression>
+          ${map_decrease_int.m} := ${map_waiting};
+          ${map_decrease_int.i} := ${task_list.sm_task.source_chart};
+        </expression>
+      </defun>
+      <connect-in port="map_waiting" place="map_of_waiting_tuples"/>
+      <connect-out port="map_decrease_int" place="map_about_decrease"/>
+      <connect-in port="task_list" place="lists_for_jacobi"/>
+    </transition>
+
+    <transition name="cleanup_at_beginning">
+      <defun>
+        <in name="task" type="smoothness_task"/>
+        <in name="map_remaining" type="map"/>
+        <out name="map_decrease_int" type="map_with_int"/>
+        <expression>
+          ${map_decrease_int.m} := ${map_remaining};
+          ${map_decrease_int.i} := ${task.source_chart};
+        </expression>
+      </defun>
+      <connect-in port="map_remaining" place="map_of_remaining_tuples"/>
+      <connect-out port="map_decrease_int" place="cleanup_about_decrease"/>
+      <connect-in port="task" place="tuples_at_beginning"/>
+    </transition>
+
+    <transition name="cleanup_after_trivial">
+      <defun>
+        <in name="task" type="smoothness_task"/>
+        <in name="map_remaining" type="map"/>
+        <out name="map_decrease_int" type="map_with_int"/>
+        <expression>
+          ${map_decrease_int.m} := ${map_remaining};
+          ${map_decrease_int.i} := ${task.source_chart};
+        </expression>
+      </defun>
+      <connect-in port="map_remaining" place="map_of_remaining_tuples"/>
+      <connect-out port="map_decrease_int" place="cleanup_about_decrease"/>
+      <connect-in port="task" place="tuples_after_trivial"/>
+    </transition>
+
+    <transition name="cleanup_after_delta">
+      <defun>
+        <in name="task" type="smoothness_task"/>
+        <in name="map_remaining" type="map"/>
+        <out name="map_decrease_int" type="map_with_int"/>
+        <expression>
+          ${map_decrease_int.m} := ${map_remaining};
+          ${map_decrease_int.i} := ${task.source_chart};
+        </expression>
+      </defun>
+      <connect-in port="map_remaining" place="map_of_remaining_tuples"/>
+      <connect-out port="map_decrease_int" place="cleanup_about_decrease"/>
+      <connect-in port="task" place="tuples_after_delta"/>
+    </transition>
+
+    <transition name="cleanup_after_descent">
+      <defun>
+        <in name="task_list" type="list_with_int"/>
+        <in name="map_remaining" type="map"/>
+        <out name="map_decrease_int" type="map_with_int"/>
+        <expression>
+          ${map_decrease_int.m} := ${map_remaining};
+          ${map_decrease_int.i} := ${task_list.i};
+        </expression>
+      </defun>
+      <connect-in port="map_remaining" place="map_of_remaining_tuples"/>
+      <connect-out port="map_decrease_int" place="cleanup_about_decrease"/>
+      <connect-in port="task_list" place="lists_for_descent"/>
+    </transition>
+
+    <transition name="cleanup_after_split">
+      <defun>
+        <in name="task_list" type="jacobi_list"/>
+        <in name="map_remaining" type="map"/>
+        <out name="map_decrease_int" type="map_with_int"/>
+        <expression>
+          ${map_decrease_int.m} := ${map_remaining};
+          ${map_decrease_int.i} := ${task_list.sm_task.source_chart};
+        </expression>
+      </defun>
+      <connect-in port="map_remaining" place="map_of_remaining_tuples"/>
+      <connect-out port="map_decrease_int" place="cleanup_about_decrease"/>
+      <connect-in port="task_list" place="lists_for_jacobi"/>
+    </transition>
+
+    <transition name="cleanup_before_jacobi">
+      <defun>
+        <in name="task" type="jacobi_task"/>
+        <in name="map_remaining" type="map"/>
+        <out name="map_decrease_int" type="map_with_int"/>
+        <expression>
+          ${map_decrease_int.m} := ${map_remaining};
+          ${map_decrease_int.i} := ${task.sm_task.source_chart};
+        </expression>
+      </defun>
+      <connect-in port="map_remaining" place="map_of_remaining_tuples"/>
+      <connect-out port="map_decrease_int" place="cleanup_about_decrease"/>
+      <connect-in port="task" place="tuples_before_jacobi"/>
+    </transition>
+
+    <transition name="cleanup_after_jacobi">
+      <defun>
+        <in name="task" type="jacobi_task"/>
+        <in name="map_remaining" type="map"/>
+        <out name="map_decrease_int" type="map_with_int"/>
+        <expression>
+          ${map_decrease_int.m} := ${map_remaining};
+          ${map_decrease_int.i} := ${task.sm_task.source_chart};
+        </expression>
+      </defun>
+      <connect-in port="map_remaining" place="map_of_remaining_tuples"/>
+      <connect-out port="map_decrease_int" place="cleanup_about_decrease"/>
+      <connect-in port="task" place="tuples_after_jacobi"/>
+    </transition>
+
+    <transition name="extract_start_ideal_from_list">
+      <defun>
+        <inout name="ideal_list" type="list"/>
+        <out name="extracted_task" type="smoothness_task"/>
+        <condition>
+          stack_empty (${ideal_list}) :eq: false
+        </condition>
+        <expression>
+          ${extracted_task} := stack_top (${ideal_list});
+          ${ideal_list} := stack_pop (${ideal_list});
+        </expression>
+      </defun>
+      <connect-inout port="ideal_list" place="list_of_start_ideals"/>
+      <connect-out port="extracted_task" place="tuples_at_beginning"/>
+    </transition>
+
+    <transition name="finish_init">
+      <defun>
+        <in name="ideal_list" type="list"/>
+        <in name="map_of_start_ideals" type="map"/>
+        <out name="map_waiting" type="map"/>
+        <condition>
+          stack_empty (${ideal_list}) :eq: true
+        </condition>
+        <expression>
+          ${map_waiting} := ${map_of_start_ideals};
+        </expression>
+      </defun>
+      <connect-in port="ideal_list" place="list_of_start_ideals"/>
+      <connect-in port="map_of_start_ideals" place="map_for_start_ideals"/>
+      <connect-out port="map_waiting" place="map_of_waiting_tuples"/>
+    </transition>
+
+    <transition name="remove_codim_one_task">
+      <defun>
+        <in name="prepare_input" type="smoothness_task"/>
+        <in name="map_waiting" type="map"/>
+        <out name="map_decrease_int" type="map_with_int"/>
+        <condition>
+          (${prepare_input.flag} :eq: true) :and:
+          (${prepare_input.codimension} :le: 1)
+        </condition>
+        <expression>
+          ${map_decrease_int.m} := ${map_waiting};
+          ${map_decrease_int.i} := ${prepare_input.source_chart};
+        </expression>
+      </defun>
+      <connect-in port="map_waiting" place="map_of_waiting_tuples"/>
+      <connect-out port="map_decrease_int" place="map_about_decrease"/>
+      <connect-in port="prepare_input" place="tuples_after_delta"/>
+    </transition>
+
+    <transition name="just_decrease_map">
+      <defun>
+        <in name="map_decrease_int" type="map_with_int"/>
+        <out name="map_waiting" type="map"/>
+        <condition>
+          map_get_assignment (${map_decrease_int.m}, ${map_decrease_int.i}) :gt: 1UL
+        </condition>
+        <expression>
+          ${map_waiting} := map_assign (${map_decrease_int.m},
+            ${map_decrease_int.i}, map_get_assignment (${map_decrease_int.m},
+            ${map_decrease_int.i}) - 1UL);
+        </expression>
+      </defun>
+      <connect-in port="map_decrease_int" place="map_about_decrease"/>
+      <connect-out port="map_waiting" place="map_of_waiting_tuples"/>
+    </transition>
+
+    <transition name="decrease_and_check">
+      <defun>
+        <require key="administration" mandatory="true"/>
+        <in name="implementation" type="string"/>
+        <in name="map_decrease_int" type="map_with_int"/>
+        <in name="remaining_variety" type="string"/>
+        <in name="heureka_file" type="string"/>
+        <in name="logging_level" type="int"/>
+        <out name="map_with_checkresult" type="map_with_int"/>
+        <module name="singular_smoothness" function="checkcover (implementation,
+          map_decrease_int, remaining_variety, map_with_checkresult,
+          logging_level, heureka_file)"
+          require_function_unloads_without_rest="false">
+          <cinclude href="fstream"/>
+          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="util-generic/dynamic_linking.hpp"/>
+          <cinclude href="we/type/value/unwrap.hpp"/>
+          <cinclude href="we/type/value/wrap.hpp"/>
+          <code><![CDATA[
+          bool result;
+          if (map_decrease_int.m.size() == 1)
+          {
+            result = true;
+          }
+          else
+          {
+            fhg::util::scoped_dlhandle
+              (implementation, RTLD_GLOBAL | RTLD_NOW | RTLD_DEEPBIND)
+              .sym<decltype (singular_smoothness_checkcover)> ("singular_smoothness_checkcover")
+                ( remaining_variety, map_decrease_int.i, result, logging_level
+                );
+          }
+          if (result)
+          {
+            std::ofstream h (heureka_file);
+          }
+          std::map<int, unsigned long> out_map =
+            pnet::type::value::unwrap<int, unsigned long>
+            (map_decrease_int.m);
+          out_map.erase (map_decrease_int.i);
+          map_with_checkresult.m = pnet::type::value::wrap (out_map);
+          map_with_checkresult.i = result ? 1 : 0;
+          ]]></code>
+        </module>
+        <condition>
+         map_get_assignment (${map_decrease_int.m}, ${map_decrease_int.i}) :eq: 1UL
+        </condition>
+      </defun>
+      <connect-read port="implementation" place="implementation"/>
+      <connect-read port="remaining_variety" place="remaining_variety"/>
+      <connect-read port="heureka_file" place="heureka_file"/>
+      <connect-read port="logging_level" place="logging_level"/>
+      <connect-in port="map_decrease_int" place="map_about_decrease"/>
+      <connect-out port="map_with_checkresult" place="map_with_checkresult"/>
+    </transition>
+
+    <transition name="cleanup_decrease_map">
+      <defun>
+        <in name="map_decrease_int" type="map_with_int"/>
+        <out name="map_remaining" type="map"/>
+        <condition>
+          map_get_assignment (${map_decrease_int.m},
+            ${map_decrease_int.i}) :gt: 1UL
+        </condition>
+        <expression>
+          ${map_remaining} := map_assign (${map_decrease_int.m},
+            ${map_decrease_int.i}, map_get_assignment (${map_decrease_int.m},
+            ${map_decrease_int.i}) - 1UL);
+        </expression>
+      </defun>
+      <connect-in port="map_decrease_int" place="cleanup_about_decrease"/>
+      <connect-out port="map_remaining" place="map_of_remaining_tuples"/>
+    </transition>
+
+    <transition name="cleanup_unassign_map">
+      <defun>
+        <in name="map_decrease_int" type="map_with_int"/>
+        <out name="map_remaining" type="map"/>
+        <condition>
+          map_get_assignment (${map_decrease_int.m},
+            ${map_decrease_int.i}) :eq: 1UL
+        </condition>
+        <expression>
+          ${map_remaining} := map_unassign (${map_decrease_int.m},
+            ${map_decrease_int.i});
+        </expression>
+      </defun>
+      <connect-in port="map_decrease_int" place="cleanup_about_decrease"/>
+      <connect-out port="map_remaining" place="map_of_remaining_tuples"/>
+    </transition>
+
+    <transition name="continue_after_check">
+      <defun>
+        <in name="map_with_checkresult" type="map_with_int"/>
+        <out name="map_waiting" type="map"/>
+        <condition>
+          ${map_with_checkresult.i} :eq: 0
+        </condition>
+        <expression>
+          ${map_waiting} := ${map_with_checkresult.m};
+        </expression>
+      </defun>
+      <connect-in port="map_with_checkresult" place="map_with_checkresult"/>
+      <connect-out port="map_waiting" place="map_of_waiting_tuples"/>
+    </transition>
+
+  </net>
+</defun>

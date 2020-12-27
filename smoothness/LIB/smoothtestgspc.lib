@@ -1,0 +1,58 @@
+///////////////////////////////////////
+version="version singular-smoothtest.lib 0.2 Dec_2020 ";
+category="Algebraic geometry";
+info="";
+
+proc mod_init()
+{
+  LIB "libSINGULAR-smoothness-module.so";
+  newstruct("configToken", "string tokentype, def options");
+  newstruct("gspcConfigToken", "string tmpdir, string nodefile, int procspernode, string rifstrategy, string loghost, int logport, list addargs");
+  newstruct("smoothtestConfigToken", "int projective, int codimlimit, int descrndcoeffmax, int descrndtries, int descmaxzerotries, int splitheuristicsoptions, int logginglevel");
+}
+
+proc configure_gspc()
+{
+  gspcConfigToken gc;
+  gc.rifstrategy = "ssh";
+  configToken ct;
+  ct.tokentype = "gspcConfigToken";
+  ct.options = gc;
+  return(ct);
+}
+
+proc configure_smoothtest()
+{
+  smoothtestConfigToken sc;
+  sc.descrndcoeffmax = 10;
+  sc.splitheuristicsoptions = 3;
+  sc.logginglevel = 3;
+  configToken ct;
+  ct.tokentype = "smoothtestConfigToken";
+  ct.options = sc;
+  return(ct);
+}
+
+proc smoothtest(ideal I, configToken gc, configToken sc)
+{
+  if ((typeof(gc.options) != "gspcConfigToken") || (typeof(sc.options) != "smoothtestConfigToken"))
+  {
+    ERROR("wrong config token types");
+  }
+  if (gc.options.loghost != "")
+  {
+    list logopt = list("--log-host", gc.options.loghost, "--log-port", string(gc.options.logport));
+    gc.options.addargs = gc.options.addargs + logopt;
+  }
+  string tmpdir;
+  if (gc.options.tmpdir[1] == "/")
+  {
+    tmpdir = gc.options.tmpdir;
+  }
+  else
+  {
+    tmpdir = system("getenv", "PWD") + "/" + gc.options.tmpdir;
+  }
+  def sm_result = gspc_smoothtest(I, sc.options.projective, sc.options.codimlimit, tmpdir, gc.options.nodefile, gc.options.procspernode, gc.options.rifstrategy, sc.options.descrndcoeffmax, sc.options.descrndtries, sc.options.descmaxzerotries, sc.options.splitheuristicsoptions, sc.options.logginglevel, gc.options.addargs);
+  return(sm_result);
+}
