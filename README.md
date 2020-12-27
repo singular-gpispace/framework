@@ -15,7 +15,7 @@ J. Böhm, W. Decker, A. Frühbis-Krüger, F.-J. Pfreundt, M. Rahn, L. Ristau: [T
 
 as well as [Singular](https://www.singular.uni-kl.de/), [GPI-Space](http://www.gpi-space.de/), and the respective applications.
 
-In the following we give detailed step-by-step instructions how to describe how to install the Singular/GPI-Space Framework on a Linux System and give an example how to use it the smoothness test. This includes the installation of Singular, GPI-Space and of the necessary dependencies (for more details on this, please also refer to the respective web pages and repositories).
+In the following we give detailed step-by-step instructions how to describe how to install the Singular/GPI-Space framework on a Linux System and give an example how to use it the smoothness test. This includes the installation of Singular, GPI-Space and of the necessary dependencies (for more details on this, please also refer to the respective web pages and repositories).
 
 GPI-Space currently actively supports and tests the following Linux distributions:
 * Centos 6
@@ -32,8 +32,10 @@ Similar distributions should also work. We occasionally also build on Gentoo. If
 Set directories for the build process and the install directory. The first one should typically be a fast local directory while the latter should be a (network) directory which is accessible from all machines involved in using GPI-Space.
 
 ```bash
-export build_ROOT=/tmpbig/jb8
-export install_ROOT=/scratch/jb8
+mkdir /tmpbig/singular-gpispace
+mkdir /scratch/singular-gpispace
+export build_ROOT=/tmpbig/singular-gpispace
+export install_ROOT=/scratch/singular-gpispace
 ```
 
 ## Installation of flint:
@@ -156,7 +158,7 @@ cmake --build ${GPISPACE_BUILD_DIR}                               \
 
 ## Test GPI-Space:
 
-The following is a short test for GPI-Space. It also creates the nodefile, which will be used in the following example. This file contains just the names of the computers used for computations with our framwork. In the example it just contains the result of hostname.
+The following is a short test for GPI-Space. It also creates a nodefile, which will be used in the following example. This file contains just the names of the computers used for computations with our framwork. In the example it just contains the result of hostname.
 
 ```bash
 cd "${GPISPACE_BUILD_DIR}"
@@ -179,17 +181,17 @@ ctest --output-on-failure                                         \
 
 
 
-## Install the Smoothness Test:
+## Install the Singular/GPI-Space framework:
 
 ```bash
 cd ${build_ROOT}
-git clone git@github.com:singular-gpispace/smoothness-test.git
+git clone git@github.com:singular-gpispace/framework.git
 for i in cmake src/util-generic src/fhg/util/boost/program_options
 do
-  mkdir -p smoothness-test/${i}
-  cp -R gpispace/${i}/* smoothness-test/${i}
+  mkdir -p framework/${i}
+  cp -R gpispace/${i}/* framework/${i}
 done
-cmake -DCMAKE_INSTALL_PREFIX=${install_ROOT}/smoothness -DCMAKE_BUILD_TYPE=Release -DGSPC_HOME=${GPISPACE_INSTALL_DIR} -DSINGULAR_HOME=${install_ROOT}/Singular420 -DINSTALL_DO_NOT_BUNDLE=ON -B smoothbuild -S smoothness-test
+cmake -DCMAKE_INSTALL_PREFIX=${install_ROOT}/framework -DCMAKE_BUILD_TYPE=Release -DGSPC_HOME=${GPISPACE_INSTALL_DIR} -DSINGULAR_HOME=${install_ROOT}/Singular420 -DINSTALL_DO_NOT_BUNDLE=ON -B frameworkbuild -S framework
 cmake --build smoothbuild --target install -j $(nproc)
 ```
 
@@ -198,14 +200,14 @@ cmake --build smoothbuild --target install -j $(nproc)
 
 The following should be present in ```bash ${install_ROOT}```:
 * A nodefile with the machines to use (we copy the one which we created when testing GPI-Space)
-* The file campedelli.sing with the example ideal which we will check for smoothness (this file can be found in the directory smoothness-test/examples).
+* The file campedelli.sing with the example ideal which we will check for smoothness (this file can be found in the directory framework/smoothness-test/examples).
 
 We thus do:
 
 ```bash
 cd ${install_ROOT}
 cp ${GPISPACE_BUILD_DIR}/nodefile .
-cp ${build_ROOT}/smoothness-test/examples/campedelli.sing .
+cp ${build_ROOT}/framework/examples/smoothness-test/campedelli.sing .
 ```
 
 
@@ -228,7 +230,7 @@ We start Singular and tell it where to find the library and the so file for the 
 
 ```bash
 cd ${install_ROOT}
-SINGULARPATH=${install_ROOT}/smoothness ${install_ROOT}/Singular420/bin/Singular
+SINGULARPATH=${install_ROOT}/framework ${install_ROOT}/Singular420/bin/Singular
 ```
 
 
