@@ -38,6 +38,7 @@ export build_ROOT=/tmpbig/singular-gpispace
 export install_ROOT=/scratch/singular-gpispace
 ```
 
+
 ## Installation of flint:
 
 We install the arithmetics and number theory library flint, which is used by Singular.
@@ -59,7 +60,7 @@ Note that for future use you should set LD_LIBRARY_PATH in your .profile or alik
 
 We install the current version of Singular, which will be required by our framework.
 
-Besides flint, Singular has various more standard dependencies, which are usually available through the package manager of your distribution. Please refer to the  [step-by-step instructions to build Singular](https://github.com/Singular/Singular/wiki/Step-by-Step-Installation-Instructions-for-Singular) for more details.
+Besides flint, Singular has various more standard dependencies, which are usually available through the package manager of your distribution. Please refer to the Appendix of this readme and the [step-by-step instructions to build Singular](https://github.com/Singular/Singular/wiki/Step-by-Step-Installation-Instructions-for-Singular) for more details.
 
 ```bash
 cd ${build_ROOT}
@@ -131,7 +132,7 @@ grep "^CC\s*=\s*gcc$" . -lR | xargs sed -i'' -e '/^CC\s*=\s*gcc$/d'
 
 We install GPI-Space version 20.12, which will be used by our framework.
 
-Besides boost, GPI-2, and libssh, it has various more standard dependencies, which are usually available through the package manager of your distribution. Please refer to the installation instructions of the [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) for more details.
+Besides boost, GPI-2, and libssh, it has various more standard dependencies, which are usually available through the package manager of your distribution. Please refer to the appendix of this readme and the installation instructions of the [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) for more details.
 
 ```bash
 gpispace_version=20.12
@@ -265,3 +266,50 @@ sc.options.codimlimit = 2;
 def result = smoothtest(I,gc,sc);
 ```
 
+
+## Appendix: Standard packages required to build the framework
+
+Assuming that we are installing on a Ubuntu system (analogous packages exist in other distributions), we give installation instructions for standard packages which are required by the framework and may not be included in your of-the-shelf installation.
+
+Note that the following requires root privileges. If you do not have root access, ask your administator to install these packages. You may want to check with `dpkg -l <package name>` whether the package is installed already.
+
+* Version control system Git used for downloading sources:
+  ```bash
+  sudo apt-get install git
+  ```
+
+* Tools necessary for compiling the packages:
+  ```bash
+  sudo apt-get install build-essential
+  sudo apt-get install autoconf
+  sudo apt-get install autogen
+  sudo apt-get install libtool
+  sudo apt-get install libreadline6-dev
+  sudo apt-get install libglpk-dev
+  sudo apt-get install cmake
+  sudo apt-get install gawk
+   ```
+      
+  Or everything in one command:
+  ```bash
+  sudo apt-get install build-essential autoconf autogen libtool libreadline6-dev libglpk-dev cmake gawk
+  ```      
+
+* Scientific libraries used by Singular:
+  ```bash
+  sudo apt-get install libgmp-dev
+  sudo apt-get install libmpfr-dev
+  sudo apt-get install libcdd-dev
+  sudo apt-get install libntl-dev
+  ```      
+
+  Or everything in one command:
+  ```bash
+  sudo apt-get install libgmp-dev libmpfr-dev libcdd-dev libntl-dev
+  ```      
+   
+* Library required by to build libssh:
+  ```bash
+  sudo apt-get install libssl-dev
+  ```      
+   
