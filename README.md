@@ -53,7 +53,7 @@ make -j $(nproc)
 make install
 export LD_LIBRARY_PATH=${build_ROOT}/tmp/lib
 ```
-
+Note that for future use you should set LD_LIBRARY_PATH in your .profile or alike of your shell, since this environment variable will be needed for executing Singular.
 
 ## Installation of Singular:
 
