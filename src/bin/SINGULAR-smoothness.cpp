@@ -94,6 +94,7 @@ try
 
   options_description.add (gspc::options::logging());
   options_description.add (gspc::options::scoped_rifd());
+  options_description.add (gspc::options::drts());
 
   boost::program_options::variables_map vm;
   boost::program_options::store
@@ -133,7 +134,7 @@ try
     (vm.at (option::name::sg_log_level).as<int>());
   gspc::installation const gspc_installation
     (singular_smoothness_installation.gspc_installation (vm));
-  std::cout << "DEBUG: will now set up scoped rif" << std::endl;
+  //std::cout << "DEBUG: will now set up scoped rif" << std::endl;
   gspc::scoped_rifds const scoped_rifd ( gspc::rifd::strategy {vm}
                                       , gspc::rifd::hostnames {vm}
                                       , gspc::rifd::port {vm}
@@ -143,14 +144,14 @@ try
   std::string const topology_description
     (vm.at (option::name::topology_description).as
     <validators::nonempty_string>());
-  std::cout << "DEBUG: scoped rif set up, will now set up drts" << std::endl;
+  //std::cout << "DEBUG: scoped rif set up, will now set up drts" << std::endl;
   gspc::scoped_runtime_system drts ( vm
                                    , gspc_installation
                                    , topology_description
                                    , scoped_rifd.entry_points()
                                    );
 
-  std::cout << "DEBUG: drts set up, will now call put_and_run" << std::endl;
+  //std::cout << "DEBUG: drts set up, will now call put_and_run" << std::endl;
   std::multimap<std::string, pnet::type::value::value_type> const result
     ( gspc::client (drts).put_and_run
       ( gspc::workflow (singular_smoothness_installation.workflow())
@@ -166,7 +167,7 @@ try
         }
       )
     );
-  std::cout << "DEBUG: put_and_run finished, will now return result" << std::endl;
+  //std::cout << "DEBUG: put_and_run finished, will now return result" << std::endl;
   for ( std::pair<std::string, pnet::type::value::value_type> const& kv
       : result
       )

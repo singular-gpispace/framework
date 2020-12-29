@@ -44,6 +44,11 @@ proc smoothtest(ideal I, configToken gc, configToken sc)
     list logopt = list("--log-host", gc.options.loghost, "--log-port", string(gc.options.logport));
     gc.options.addargs = gc.options.addargs + logopt;
   }
+  if (system("getenv", "LD_LIBRARY_PATH") != "")
+  {
+    list ldpathopt = list("--worker-env-copy-variable", "LD_LIBRARY_PATH");
+    gc.options.addargs = gc.options.addargs + ldpathopt;
+  }
   string tmpdir;
   if (gc.options.tmpdir[1] == "/")
   {

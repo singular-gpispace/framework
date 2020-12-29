@@ -127,6 +127,7 @@ static bool call_gspc_smoothtest ( ideal input_ideal
   options_description.add_options() ("help", "Display this message");
   options_description.add (gspc::options::logging());
   options_description.add (gspc::options::scoped_rifd (gspc::options::rifd::rif_port));
+  options_description.add (gspc::options::drts());
 
   boost::program_options::variables_map vm;
   boost::program_options::store
