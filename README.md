@@ -396,5 +396,5 @@ Note that the following requires root privileges. If you do not have root access
      
   Or everything in one command:
   ```bash
-  sudo apt-get install hwloc libhwloc-dev libudev-dev qt5-default chrpath
+  sudo apt-get install openssh-server hwloc libhwloc-dev libudev-dev qt5-default chrpath
   ```      
