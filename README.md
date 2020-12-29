@@ -165,6 +165,14 @@ cmake --build ${GPISPACE_BUILD_DIR}                               \
       -j $(nproc)
 ```
 
+Note that GPI-Space requires the ability to log into the computation nodes via ssh with ssh-key authorization. If you do not have this setup already, you should generate an ssh key and add it to authorized-keys. Make also sure that an ssh server is running. If you ssh to the machines you should not be asked for a password.
+
+```bash
+ssh-keygen -t rsa -C "your_email@example.com"
+cd ~/.ssh
+cat id_rsa.pub >> authorized_keys
+```
+
 
 ## Test GPI-Space:
 
