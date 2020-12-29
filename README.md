@@ -94,6 +94,8 @@ cd boost_1_63_0
 
 We install libssh since GPI-Space may run into problems on some systems with the ssh installation provided with the system.
 
+Note that for future use you should apply the changes to LD_LIBRARY_PATH in your .profile or alike of your shell, since this will be needed for executing our framework.
+
 ```bash
 cd ${build_ROOT}
 arch=$(getconf LONG_BIT)
