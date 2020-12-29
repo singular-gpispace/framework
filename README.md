@@ -218,7 +218,7 @@ cmake --build frameworkbuild --target install -j $(nproc)
 
 The following should be present in ```bash ${install_ROOT}```:
 * A nodefile with the machines to use (we copy the one which we created when testing GPI-Space)
-* The file campedelli.sing with the example ideal which we will check for smoothness (this file can be found in the directory framework/smoothness-test/examples).
+* The files campedelli.sing or quadric.sing with the example ideal which we will check for smoothness (these files can be found in the directory framework/smoothness-test/examples).
 
 We thus do:
 
@@ -226,6 +226,7 @@ We thus do:
 cd ${install_ROOT}
 cp ${GPISPACE_BUILD_DIR}/nodefile .
 cp ${build_ROOT}/framework/examples/smoothness-test/campedelli.sing .
+cp ${build_ROOT}/framework/examples/smoothness-test/quadric.sing .
 ```
 
 
@@ -280,6 +281,21 @@ gc.options.procspernode = 16;
 configToken sc = configure_smoothtest();
 sc.options.projective = 1;
 sc.options.codimlimit = 2;
+def result = smoothtest(I,gc,sc);
+```
+
+On a smaller machine, try the following, which should finish instantaneously:
+
+```bash
+LIB "smoothtestgspc.lib";
+< "quadric.sing";
+configToken gc = configure_gspc();
+gc.options.tmpdir = "temp";
+gc.options.nodefile = "nodefile";
+gc.options.procspernode = 2;
+configToken sc = configure_smoothtest();
+sc.options.projective = 1;
+sc.options.codimlimit = 0;
 def result = smoothtest(I,gc,sc);
 ```
 
