@@ -97,8 +97,11 @@ We install libssh since GPI-Space may run into problems on some systems with the
 ```bash
 cd ${build_ROOT}
 arch=$(getconf LONG_BIT)
-export PKG_CONFIG_PATH="${install_ROOT}/libssh/lib${arch}/pkgconfig"${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}
-export LD_LIBRARY_PATH="${install_ROOT}/libssh/lib${arch}"${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+export Libssh2_ROOT=${install_ROOT}/libssh
+export PKG_CONFIG_PATH="${Libssh2_ROOT}/lib${arch}/pkgconfig"${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}
+export PKG_CONFIG_PATH="${Libssh2_ROOT}/lib/pkgconfig"${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}
+export LD_LIBRARY_PATH="${Libssh2_ROOT}/lib${arch}"${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+export LD_LIBRARY_PATH="${Libssh2_ROOT}/lib"${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 git clone --jobs $(nproc) --depth 1 --shallow-submodules --recursive --branch libssh2-1.9.0 https://github.com/libssh2/libssh2.git
 cmake -D CRYPTO_BACKEND=OpenSSL -D CMAKE_BUILD_TYPE=Release -D ENABLE_ZLIB_COMPRESSION=ON -D BUILD_SHARED_LIBS=ON   -D CMAKE_INSTALL_PREFIX=${install_ROOT}/libssh -B libssh2/build -S libssh2
 cmake --build libssh2/build --target install -j $(nproc)
