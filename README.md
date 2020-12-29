@@ -239,7 +239,7 @@ mkdir ${install_ROOT}/temp
 
 
 * Optionally: We start the GPI-Space Monitor (to do so, you need an X-Server running) to display computations in form of a Gantt diagram.
-  In case you do not want to use the monitor, you should not set in Singular the field options.logport of the GPI-Space configuration token (see below). In order to use the GPI-Space Monitor, we need a loghostfile with the name of the machine running the monitor.
+  In case you do not want to use the monitor, you should not set in Singular the fields options.loghostfile and options.logport of the GPI-Space configuration token (see below). In order to use the GPI-Space Monitor, we need a loghostfile with the name of the machine running the monitor.
   ```bash
   hostname > loghostfile
   ```
@@ -265,7 +265,6 @@ This
 * creates a configuration token for the Singular/GPI-Space framework, 
   * adds information where to store temporary data (in the field options.tmpdir), 
   * where to find the nodefile (in the field options.nodefile), and
-  * where to find the loghostfile (in the field options.loghostfile), and
   * sets how many processes per node should be started (in the field options.procspernode, usually one process per core, not taking hyper-threading into account, you may have to adjust according to your hardware),
 * creates a configuration token for the smoothness test,  
   * adds information on whether the input ideal is to be considered in projective space or affine space (in the field options.projective), 
@@ -282,8 +281,25 @@ LIB "smoothtestgspc.lib";
 configToken gc = configure_gspc();
 gc.options.tmpdir = "temp";
 gc.options.nodefile = "nodefile";
-gc.options.loghostfile = "loghostfile";
 gc.options.procspernode = 16;
+configToken sc = configure_smoothtest();
+sc.options.projective = 1;
+sc.options.codimlimit = 2;
+def result = smoothtest(I,gc,sc);
+```
+
+The same computation including logging on the GPI-Space monitor (which should be started on port 9876). Here we have to specify where to find the loghostfile (in the field options.loghostfile) and what is the port of the monitor accepting connections (in the field options.logport):
+
+
+```bash
+LIB "smoothtestgspc.lib";
+< "campedelli.sing";
+configToken gc = configure_gspc();
+gc.options.tmpdir = "temp";
+gc.options.nodefile = "nodefile";
+gc.options.procspernode = 16;
+gc.options.loghostfile = "loghostfile";
+gc.options.logport = 9876;
 configToken sc = configure_smoothtest();
 sc.options.projective = 1;
 sc.options.codimlimit = 2;
@@ -299,6 +315,22 @@ configToken gc = configure_gspc();
 gc.options.tmpdir = "temp";
 gc.options.nodefile = "nodefile";
 gc.options.procspernode = 2;
+configToken sc = configure_smoothtest();
+sc.options.projective = 1;
+sc.options.codimlimit = 0;
+def result = smoothtest(I,gc,sc);
+```
+The same including logging:
+
+```bash
+LIB "smoothtestgspc.lib";
+< "quadric.sing";
+configToken gc = configure_gspc();
+gc.options.tmpdir = "temp";
+gc.options.nodefile = "nodefile";
+gc.options.procspernode = 2;
+gc.options.loghostfile = "loghostfile";
+gc.options.logport = 9876;
 configToken sc = configure_smoothtest();
 sc.options.projective = 1;
 sc.options.codimlimit = 0;
