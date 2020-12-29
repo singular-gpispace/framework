@@ -305,14 +305,27 @@ Note that the following requires root privileges. If you do not have root access
   sudo apt-get install libcdd-dev
   sudo apt-get install libntl-dev
   ```      
-
+  
   Or everything in one command:
   ```bash
   sudo apt-get install libgmp-dev libmpfr-dev libcdd-dev libntl-dev
   ```      
-   
+  
 * Library required by to build libssh:
   ```bash
   sudo apt-get install libssl-dev
   ```      
-   
+  
+* Libraries required by GPI-Space
+  ```bash
+  sudo apt-get install hwloc
+  sudo apt-get install libhwloc-dev
+  sudo apt-get install libudev-dev
+  sudo apt-get install qt5-default
+  sudo apt-get install chrpath
+  ```     
+     
+  Or everything in one command:
+  ```bash
+  sudo apt-get install hwloc libhwloc-dev libudev-dev qt5-default chrpath
+  ```      
