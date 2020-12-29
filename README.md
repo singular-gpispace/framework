@@ -38,6 +38,8 @@ export build_ROOT=/tmpbig/singular-gpispace
 export install_ROOT=/scratch/singular-gpispace
 ```
 
+Note that for future use you should add the exports to your .profile or alike of your shell, since they are required to run our framework.
+
 
 ## Installation of flint:
 
@@ -138,6 +140,8 @@ grep "^CC\s*=\s*gcc$" . -lR | xargs sed -i'' -e '/^CC\s*=\s*gcc$/d'
 We install GPI-Space version 20.12, which will be used by our framework.
 
 Besides boost, GPI-2, and libssh, it has various more standard dependencies, which are usually available through the package manager of your distribution. Please refer to the appendix of this readme and the installation instructions of the [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) for more details.
+
+Note that for future use you should add the exports to your .profile or alike of your shell.
 
 ```bash
 gpispace_version=20.12
