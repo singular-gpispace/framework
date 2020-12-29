@@ -1,13 +1,13 @@
 # Singular/GPI-Space Framework
 
-The Singular/GPI-Space Framework aims at massively parallel computations in computer algebra. It uses the computer algebra system [Singular](https://www.singular.uni-kl.de/) in conjunction with the workflow management system [GPI-Space](http://www.gpi-space.de/). While Singular provides the user frontend and computatinal backend, the coordination of the computations is done with GPI-Space. Parallel algorithms are modeled in terms of Petri nets.
+The Singular/GPI-Space Framework aims at massively parallel computations in computer algebra. It uses the computer algebra system [Singular](https://www.singular.uni-kl.de/) in conjunction with the workflow management system [GPI-Space](http://www.gpi-space.de/) developed by Fraunhofer ITWM. While Singular provides the user frontend and computational backend, the coordination of the computations is done with GPI-Space. Parallel algorithms are modeled in the coordination layer in terms of Petri nets.
 
 The Singular/GPI-Space Framework has been used, for example, to determine smoothness of algebraic varieties, to compute GIT-fans, to compute tropicalizations of algebraic varieties, and to compute integration-by-parts relations for Feynman integrals in high energy physics.
 
 For more information, see the webpage of the [Singular/GPI-Space Framework](https://www.mathematik.uni-kl.de/~boehm/singulargpispace/).
 
 
-With an [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) now available, this repository is the ongoing effort to make our code publicly available, this being the first version and part of the code. It contains simple programming primitives and as an example the code to test smoothnes of algebraic varieties. For details on the smoothness test, please refer to the paper [Towards Massively Parallel Computations in Algebraic Geometry](https://link.springer.com/article/10.1007/s10208-020-09464-x), Found. Comput. Math. (2020).
+With an [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) now available, this repository is the ongoing effort to make our code publicly available, this being the first version and part of the code. It contains basic infrastructure and, as an example, the code to test smoothness of algebraic varieties. For details on the smoothness test, please refer to the papers [Towards Massively Parallel Computations in Algebraic Geometry](https://link.springer.com/article/10.1007/s10208-020-09464-x), Found. Comput. Math. (2020).
 
 If you use the Singular/GPI-Space framework, please cite the paper
 
@@ -15,7 +15,7 @@ J. Böhm, W. Decker, A. Frühbis-Krüger, F.-J. Pfreundt, M. Rahn, L. Ristau: [T
 
 as well as [Singular](https://www.singular.uni-kl.de/), [GPI-Space](http://www.gpi-space.de/), and the respective applications.
 
-In the following we give detailed step-by-step instructions how to describe how to install the Singular/GPI-Space framework on a Linux System and give an example how to use it the smoothness test. This includes the installation of Singular, GPI-Space and of the necessary dependencies (for more details on this, please also refer to the respective web pages and repositories).
+In the following, we give detailed step-by-step instructions how to install the Singular/GPI-Space framework on a Linux System and give an example how to use it, considering the smoothness test. This includes the installation of Singular, GPI-Space and of the necessary dependencies (for more details on this, please also refer to the respective web pages and repositories).
 
 GPI-Space currently actively supports and tests the following Linux distributions:
 * Centos 6
@@ -24,12 +24,12 @@ GPI-Space currently actively supports and tests the following Linux distribution
 * Ubuntu 18.04 LTS
 * Ubuntu 20.04 LTS
 
-Similar distributions should also work. We occasionally also build on Gentoo. If you want to install on larger (pools of) machines, Centos is a good choice.
+Similar distributions should also work. We occasionally also build on Gentoo. If you want to install on larger (pools/clusters of) machines, Centos is a good choice.
 
 
 ## Source and installation directories
 
-Set directories for the build process and the install directory. The first one should typically be a fast local directory while the latter should be a (network) directory which is accessible from all machines involved in using GPI-Space.
+Set a directory for the build process and the install directory. The first one should typically be a fast local directory, while the latter should be a (network) directory which is accessible from all machines involved in using GPI-Space.
 
 ```bash
 mkdir /tmpbig/singular-gpispace
@@ -38,7 +38,7 @@ export build_ROOT=/tmpbig/singular-gpispace
 export install_ROOT=/scratch/singular-gpispace
 ```
 
-Note that for future use you should add the exports to your .profile or alike of your shell, since they are required to run our framework.
+Note that, for future use, you should add the exports to your .profile file or alike of your shell, since the exports are required to run our framework.
 
 
 ## Installation of flint:
@@ -56,7 +56,7 @@ make -j $(nproc)
 make install
 export LD_LIBRARY_PATH=${build_ROOT}/tmp/lib
 ```
-Note that for future use you should set LD_LIBRARY_PATH in your .profile or alike of your shell, since this environment variable will be needed for executing Singular.
+Note that, for future use, you should set LD_LIBRARY_PATH in your .profile file or alike of your shell, since this environment variable will be needed for executing Singular.
 
 ## Installation of Singular:
 
@@ -96,7 +96,7 @@ cd boost_1_63_0
 
 We install libssh since GPI-Space may run into problems on some systems with the ssh installation provided with the system.
 
-Note that for future use you should apply the changes to LD_LIBRARY_PATH in your .profile or alike of your shell, since this will be needed for executing our framework.
+Note that, for future use, you should apply the changes to LD_LIBRARY_PATH in your .profile file or alike of your shell, since this will be needed for executing our framework.
 
 ```bash
 cd ${build_ROOT}
@@ -114,7 +114,7 @@ cmake --build libssh2/build --target install -j $(nproc)
 
 ## Install GPI-2:
 
-We install GPI-2, which will be used by GPI-Space:
+We install [GPI-2](http://www.gpi-site.com/), an API for the development of scalable, asynchronous and fault tolerant parallel applications developed by Frauhofer ITWM, which will be used by GPI-Space:
 
 ```bash
 arch=$(getconf LONG_BIT)
@@ -141,7 +141,7 @@ We install GPI-Space version 20.12, which will be used by our framework.
 
 Besides boost, GPI-2, and libssh, it has various more standard dependencies, which are usually available through the package manager of your distribution. Please refer to the appendix of this readme and the installation instructions of the [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) for more details.
 
-Note that for future use you should add the exports to your .profile or alike of your shell.
+Note that, for future use, you should add the exports to your .profile file or alike of your shell.
 
 ```bash
 gpispace_version=20.12
@@ -165,7 +165,7 @@ cmake --build ${GPISPACE_BUILD_DIR}                               \
       -j $(nproc)
 ```
 
-Note that GPI-Space requires the ability to log into the computation nodes via ssh with ssh-key authorization. If you do not have this setup already, you should generate an ssh key and add it to authorized-keys. Make also sure that an ssh server is running. If you ssh to the machines you should not be asked for a password.
+Note that GPI-Space requires the ability to log into the computation nodes via ssh with ssh-key authorization. If you do not have this setup already, you should generate an ssh key and add it to the authorized-keys file. Make also sure that an ssh server is running. If you ssh to the machines you should not be asked for a password.
 
 ```bash
 ssh-keygen -t rsa -C "your_email@example.com"
@@ -176,7 +176,7 @@ cat id_rsa.pub >> authorized_keys
 
 ## Test GPI-Space:
 
-The following is a short test for GPI-Space. It also creates a nodefile, which will be used in the following example. This file contains just the names of the computers used for computations with our framwork. In the example it just contains the result of hostname.
+The following is a short test for GPI-Space. It also creates a nodefile, which will be used in the subsequent example. This file contains just the names of the nodes used for computations with our framwork. In the example, it just contains the result of hostname.
 
 ```bash
 cd "${GPISPACE_BUILD_DIR}"
@@ -188,7 +188,7 @@ Optionally: To test in a cluster allocation using the following systems (if avai
 * Slurm: export GSPC_NODEFILE_FOR_TESTS="$(generate_pbs_nodefile)"
 * PBS/Torque: export GSPC_NODEFILE_FOR_TESTS="${PBS_NODEFILE}"
 
-In any case then execute:
+In any case, then execute:
 
 ```bash
 ctest --output-on-failure                                         \
@@ -218,7 +218,7 @@ cmake --build frameworkbuild --target install -j $(nproc)
 
 The following should be present in ```bash ${install_ROOT}```:
 * A nodefile with the machines to use (we copy the one which we created when testing GPI-Space)
-* The files campedelli.sing or quadric.sing with the example ideal which we will check for smoothness (these files can be found in the directory framework/smoothness-test/examples).
+* The files campedelli.sing or quadric.sing with example ideals which define varieties which we will check for smoothness (these files can be found in the directory framework/smoothness-test/examples).
 
 We thus do:
 
@@ -228,7 +228,6 @@ cp ${GPISPACE_BUILD_DIR}/nodefile .
 cp ${build_ROOT}/framework/examples/smoothness-test/campedelli.sing .
 cp ${build_ROOT}/framework/examples/smoothness-test/quadric.sing .
 ```
-
 
 Moreover, we need a directory for temporary files, which should be accessible from all machines involved in the computation:
 
@@ -243,7 +242,7 @@ mkdir ${install_ROOT}/temp
   ```bash
   hostname > loghostfile
   ```
-  On this machine then start the monitor, specifying a port number, where the monitor will receive information from GPI-Space. The same port has to be specified in Singular in the field options.logport.
+  On this machine, start the monitor, specifying a port number where the monitor will receive information from GPI-Space. The same port has to be specified in Singular in the field options.logport.
   ```bash
   ${install_ROOT}/gpispace/bin/gspc-monitor --port 9876
   ```
@@ -265,9 +264,9 @@ This
 * creates a configuration token for the Singular/GPI-Space framework, 
   * adds information where to store temporary data (in the field options.tmpdir), 
   * where to find the nodefile (in the field options.nodefile), and
-  * sets how many processes per node should be started (in the field options.procspernode, usually one process per core, not taking hyper-threading into account, you may have to adjust according to your hardware),
+  * sets how many processes per node should be started (in the field options.procspernode, usually one process per core, not taking hyper-threading into account; you may have to adjust according to your hardware),
 * creates a configuration token for the smoothness test,  
-  * adds information on whether the input ideal is to be considered in projective space or affine space (in the field options.projective), 
+  * adds information on whether the input ideal is to be considered in projective space or affine space (in the field options.projective), and
   * at which codimension the descent with Hironaka's criterion should stop and the standard Jacobian cirterion should be used (in the field options.codimlimit), and finally 
 * starts the computation.
 
@@ -288,7 +287,7 @@ sc.options.codimlimit = 2;
 def result = smoothtest(I,gc,sc);
 ```
 
-The same computation including logging on the GPI-Space monitor (which should be started on port 9876). Here we have to specify where to find the loghostfile (in the field options.loghostfile) and what is the port of the monitor accepting connections (in the field options.logport):
+The same computation including logging on the GPI-Space monitor (which should be started on port 9876). Here, we have to specify where to find the loghostfile (in the field options.loghostfile), and what is the port of the monitor accepting connections (in the field options.logport):
 
 
 ```bash
