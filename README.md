@@ -324,6 +324,7 @@ Note that the following requires root privileges. If you do not have root access
   
 * Libraries required by GPI-Space
   ```bash
+  sudo apt-get install openssh-server
   sudo apt-get install hwloc
   sudo apt-get install libhwloc-dev
   sudo apt-get install libudev-dev
