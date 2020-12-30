@@ -7,7 +7,7 @@ proc mod_init()
 {
   LIB "libSINGULAR-smoothness-module.so";
   newstruct("configToken", "string tokentype, def options");
-  newstruct("gspcConfigToken", "string tmpdir, string nodefile, int procspernode, string rifstrategy, string loghost, int logport, list addargs");
+  newstruct("gspcConfigToken", "string tmpdir, string nodefile, int procspernode, string rifstrategy, string loghost, int logport, list addargs, string loghostfile");
   newstruct("smoothtestConfigToken", "int projective, int codimlimit, int descrndcoeffmax, int descrndtries, int descmaxzerotries, int splitheuristicsoptions, int logginglevel");
 }
 
@@ -39,8 +39,25 @@ proc smoothtest(ideal I, configToken gc, configToken sc)
   {
     ERROR("wrong config token types");
   }
-  if (gc.options.loghost != "")
+  if (gc.options.logport != 0) // logging requested
   {
+    if (gc.options.loghost == "") // no hostname given, so read from file
+    {
+      if (gc.options.loghostfile == "")
+      {
+        ERROR("logging requested, no loghost and no loghostfile given");
+      }
+      string loghost = read(gc.options.loghostfile);
+      if ((loghost == "") || (loghost == newline))
+      {
+        ERROR("no hostname in loghostfile");
+      }
+      if (loghost[size(loghost)] == newline) // delete trailing LF
+      {
+        loghost = loghost[1..(size(loghost)-1)];
+      }
+      gc.options.loghost = loghost;
+    }
     list logopt = list("--log-host", gc.options.loghost, "--log-port", string(gc.options.logport));
     gc.options.addargs = gc.options.addargs + logopt;
   }
