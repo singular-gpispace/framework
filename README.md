@@ -287,7 +287,7 @@ sc.options.codimlimit = 2;
 def result = smoothtest(I,gc,sc);
 ```
 
-The same computation including logging on the GPI-Space monitor (which should be started on port 9876). Here, we have to specify where to find the loghostfile (in the field options.loghostfile), and what is the port of the monitor accepting connections (in the field options.logport):
+The same computation including logging on the GPI-Space monitor. Here, we have to specify where to find the loghostfile (in the field options.loghostfile), and what is the port of the monitor accepting connections (in the field options.logport, in our example, this was 9876). One can alternatively also specify the loghost directly via the field options.loghost (this option has priority over options.loghostfile).
 
 
 ```bash
