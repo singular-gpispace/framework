@@ -41,7 +41,7 @@ export install_ROOT=/scratch/singular-gpispace
 Note that, for future use, you should add the exports to your .profile file or alike of your shell, since the exports are required to run our framework.
 
 
-## Installation of flint:
+## Install flint:
 
 We install the arithmetics and number theory library flint, which is used by Singular.
 
@@ -58,7 +58,7 @@ export LD_LIBRARY_PATH=${build_ROOT}/tmp/lib
 ```
 Note that, for future use, you should set LD_LIBRARY_PATH in your .profile file or alike of your shell, since this environment variable will be needed for executing Singular.
 
-## Installation of Singular:
+## Install Singular:
 
 We install the current version of Singular, which will be required by our framework.
 
