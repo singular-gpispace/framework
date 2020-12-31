@@ -1,6 +1,6 @@
 # Singular/GPI-Space Framework
 
-The Singular/GPI-Space Framework aims at massively parallel computations in computer algebra. It uses the computer algebra system [Singular](https://www.singular.uni-kl.de/) in conjunction with the workflow management system [GPI-Space](http://www.gpi-space.de/) developed by Fraunhofer ITWM. While Singular provides the user frontend and computational backend, the coordination of the computations is done with GPI-Space. Parallel algorithms are modeled in the coordination layer in terms of Petri nets.
+The Singular/GPI-Space Framework aims at massively parallel computations in computer algebra. It uses the computer algebra system [Singular](https://www.singular.uni-kl.de/) in conjunction with the workflow management system [GPI-Space](http://www.gpi-space.de/) developed by Fraunhofer ITWM. While Singular provides the user frontend and computational backend, the coordination of the computations is done by GPI-Space. Parallel algorithms are modeled in the coordination layer in terms of Petri nets.
 
 The Singular/GPI-Space Framework has been used, for example, to determine smoothness of algebraic varieties, to compute GIT-fans, to compute tropicalizations of algebraic varieties, and to compute integration-by-parts relations for Feynman integrals in high energy physics.
 
