@@ -58,6 +58,19 @@ export LD_LIBRARY_PATH=${build_ROOT}/tmp/lib
 ```
 Note that, for future use, you should set LD_LIBRARY_PATH in your .profile file or alike of your shell, since this environment variable will be needed for executing Singular.
 
+Furthermore, note that flint is being actively developed, which results in changes to
+the API; this can at times lead to the compilation of Singular to fail.  Should
+this happen, rather compile a release version from flintlib.org as a workaround.
+This can be done by replacing the step above `git clone https://github.com/wbhart/flint2.git flint2`
+by the following:
+```bash
+wget http://www.flintlib.org/flint-2.7.1.tar.gz
+tar -xf flint-2.7.1.tar.gz
+cd flint-2.7.1
+```
+Then continue as before from the `./configure ...` line.
+
+
 ## Install Singular:
 
 We install the current version of Singular, which will be required by our framework.
