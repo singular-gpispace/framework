@@ -7,7 +7,7 @@ The Singular/GPI-Space Framework has been used, for example, to determine smooth
 For more information, see the webpage of the [Singular/GPI-Space Framework](https://www.mathematik.uni-kl.de/~boehm/singulargpispace/).
 
 
-With an [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) now available, this repository is the ongoing effort to make our code publicly available, this being the second main version and part of the code. It contains basic infrastructure and, as an example, the code to test smoothness of algebraic varieties and convenient predefined workflows for wait all and wait first algorithmic structures. 
+With an [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) now available, this repository is the ongoing effort to make our code publicly available, this being the second main version and part of the code. It contains basic infrastructure and, as an example, the code to test smoothness of algebraic varieties. Moreover, it contains convenient predefined workflows for wait all and wait first algorithmic structures. 
 
 For details on the smoothness test, please refer to the papers [Towards Massively Parallel Computations in Algebraic Geometry](https://link.springer.com/article/10.1007/s10208-020-09464-x), Found. Comput. Math. (2020).
 
