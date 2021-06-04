@@ -118,7 +118,7 @@ static bool call_gspc_smoothtest ( ideal input_ideal
   singular_write_ssi ("SMinputideal", ideal_filename);
   dechain_handle (input_ideal_handle, &(currRing->idroot));
 
-  singular_smoothness::installation const singular_smoothness_installation (installation_path);
+  singular_parallel::installation const singular_smoothness_installation (installation_path);
 
   boost::filesystem::path const implementation
     (singular_smoothness_installation.workflow_dir() / "libsmoothness_implementation.so");
@@ -185,7 +185,7 @@ static bool call_gspc_smoothtest ( ideal input_ideal
 
   std::multimap<std::string, pnet::type::value::value_type> const result
     ( gspc::client (drts).put_and_run
-      ( gspc::workflow (singular_smoothness_installation.workflow())
+      ( gspc::workflow (singular_smoothness_installation.workflow_smoothness())
       , { {"implementation", implementation.string()}
         , {"input_ideal", ideal_filename}
         , {"is_projective", projective}

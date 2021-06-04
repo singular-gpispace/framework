@@ -1,7 +1,22 @@
 ///////////////////////////////////////
-version="version singular-smoothtest.lib 0.2 Dec_2020 ";
+version="version smoothtestgspc.lib 0.3 Jun_2021 ";
 category="Algebraic geometry";
-info="";
+info="
+LIBRARY: smoothtestgspc.lib  smoothness test with GPI-Space
+
+OVERVIEW:
+This library contains SINGULAR procedures for the parallel smoothness test of the Singular/GPI-Space framework.
+
+TYPES:
+configToken            general configuration token type
+gspcConfigToken        configuration token for GPI-Space
+smoothtestConfigToken  configuration token for the transition procedure
+
+PROCEDURES:
+configure_gspc()                           generates standard config token for GPI-Space
+configure_smoothtest()                     generates standard config token for the smoothness test
+smoothtest(ideal,configToken,configToken)  call the smoothness test
+";
 
 proc mod_init()
 {
@@ -12,6 +27,9 @@ proc mod_init()
 }
 
 proc configure_gspc()
+"USAGE: configure_gspc()
+RETURN: a configToken containing a gspcConfigToken with the standard configuration for GPI-Space
+"
 {
   gspcConfigToken gc;
   gc.rifstrategy = "ssh";
@@ -22,6 +40,10 @@ proc configure_gspc()
 }
 
 proc configure_smoothtest()
+"USAGE: configure_smoothtest()
+RETURN: a configToken containing a smoothtestConfigToken with a default configuration for the
+smoothness test
+"
 {
   smoothtestConfigToken sc;
   sc.descrndcoeffmax = 10;
@@ -34,6 +56,11 @@ proc configure_smoothtest()
 }
 
 proc smoothtest(ideal I, configToken gc, configToken sc)
+"USAGE: smoothtest(I, gc, sc); I ideal, gc configToken, sc configToken
+RETURN: 1 if the variety defined by I is smooth, 0 if not
+NOTE: The configTokens in the second and third argument must contain a gspcConfigToken and,
+respectively, a smoothtestConfigToken.
+"
 {
   if ((typeof(gc.options) != "gspcConfigToken") || (typeof(sc.options) != "smoothtestConfigToken"))
   {

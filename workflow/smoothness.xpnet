@@ -97,7 +97,7 @@
           desc_rnd_coeff_max, desc_rnd_tries, desc_max_zero_tries,
           desc_rnd_options, logging_level)"
           require_function_unloads_without_rest="false">
-          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="share/include/smoothness_interface.hpp"/>
           <cinclude href="util-generic/dynamic_linking.hpp"/>
           <cinclude href="we/type/value/wrap.hpp"/>
           <cinclude href="pnetc/type/smoothness_task/op.hpp"/>
@@ -206,7 +206,7 @@
           trivial_input, trivial_output, heureka_file, logging_level)"
           require_function_unloads_without_rest="false">
           <cinclude href="fstream"/>
-          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="share/include/smoothness_interface.hpp"/>
           <cinclude href="util-generic/dynamic_linking.hpp"/>
           <code><![CDATA[
           trivial_output = trivial_input;
@@ -289,7 +289,7 @@
           delta_input, delta_output, heureka_file, logging_level)"
           require_function_unloads_without_rest="false">
           <cinclude href="fstream"/>
-          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="share/include/smoothness_interface.hpp"/>
           <cinclude href="util-generic/dynamic_linking.hpp"/>
           <code><![CDATA[
           delta_output = delta_input;
@@ -333,7 +333,7 @@
           jacobi_input, jacobi_output, heureka_file, logging_level)"
           require_function_unloads_without_rest="false">
           <cinclude href="fstream"/>
-          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="share/include/smoothness_interface.hpp"/>
           <cinclude href="util-generic/dynamic_linking.hpp"/>
           <code><![CDATA[
           jacobi_output = jacobi_input;
@@ -375,7 +375,7 @@
           heuristics_options, logging_level)"
           require_function_unloads_without_rest="false">
           <cinclude href="fstream"/>
-          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="share/include/smoothness_interface.hpp"/>
           <cinclude href="util-generic/dynamic_linking.hpp"/>
           <cinclude href="we/type/value/wrap.hpp"/>
           <cinclude href="pnetc/type/jacobi_task/op.hpp"/>
@@ -485,7 +485,7 @@
           prepare_input, prepare_tuples, heureka_file, rnd_options,
           logging_level)" require_function_unloads_without_rest="false">
           <cinclude href="fstream"/>
-          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="share/include/smoothness_interface.hpp"/>
           <cinclude href="util-generic/dynamic_linking.hpp"/>
           <cinclude href="we/type/value/wrap.hpp"/>
           <code><![CDATA[
@@ -797,7 +797,7 @@
           logging_level, heureka_file)"
           require_function_unloads_without_rest="false">
           <cinclude href="fstream"/>
-          <cinclude href="share/include/interface.hpp"/>
+          <cinclude href="share/include/smoothness_interface.hpp"/>
           <cinclude href="util-generic/dynamic_linking.hpp"/>
           <cinclude href="we/type/value/unwrap.hpp"/>
           <cinclude href="we/type/value/wrap.hpp"/>

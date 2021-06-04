@@ -38,7 +38,7 @@ namespace
 int main (int argc, char** argv)
 try
 {
-  singular_smoothness::installation const singular_smoothness_installation;
+  singular_parallel::installation const singular_smoothness_installation;
 
   namespace validators = fhg::util::boost::program_options;
 
@@ -154,7 +154,7 @@ try
   //std::cout << "DEBUG: drts set up, will now call put_and_run" << std::endl;
   std::multimap<std::string, pnet::type::value::value_type> const result
     ( gspc::client (drts).put_and_run
-      ( gspc::workflow (singular_smoothness_installation.workflow())
+      ( gspc::workflow (singular_smoothness_installation.workflow_smoothness())
       , { {"implementation", implementation.string()}
         , {"input_ideal", file_with_ideal.string()}
         , {"is_projective", is_projective}

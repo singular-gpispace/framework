@@ -1,0 +1,95 @@
+///////////////////////////////////////
+version="version gspcmodstd.lib 0.1 Jun_2021 ";
+category="Algebraic geometry";
+info="
+LIBRARY: gspcmodstd.lib  demo procedures for wait_all pattern
+
+OVERVIEW:
+This library contains SINGULAR procedures to demonstrate the wait_all pattern of the Singular/GPI-Space framework.
+The newstruct types inputToken and outputToken must be defined as in README.md.
+
+PROCEDURES:
+stdmodp(inputToken)     computes a standard basis modulo p
+liftIdeals(list[,int])  lift partial result using CRT, possibly with consistency check
+";
+
+proc stdmodp (inputToken input)
+"USAGE: stdmodp(input); input inputToken
+RETURN: an outputToken output containing a standard basis output.outputideal of the ideal input.inputideal
+in a ring with prescribed characteristic input.characteristic
+NOTE: The types inputToken and outputToken are defined in README.md. This procedure is intended to be called
+as a transition procedure inside the worker process (that is, the "inner" instances of SINGULAR).
+"
+{
+  ring R = input.r_inputideal;
+  list rl = ringlist(R);
+  ideal I = input.inputideal;
+  rl[1] = input.characteristic;
+  ring S = ring(rl);
+  ideal I = fetch(R, I);
+  ideal J = std(I);
+  outputToken output;
+  output.outputideal = J;
+  return(output);
+}
+
+proc liftIdeals(list l, list #)
+"USAGE: liftIdeals(l[, c]); l list, c int
+RETURN: an ideal representing the lift to the rationals of the ideals in the list l of input tokens.
+If the second argument is defined, then a simple consistency check is performed by first computing the
+lift of the first n-1 ideals in positive characteristic and then comparing it with the lift involving
+all ideals. If these ideals differ, an error is generated. This procedure is intended to be called
+manually, that is, from the "outer" instance of SINGULAR.
+"
+{
+  int i;
+  list r;
+  bigint prod = 1;
+  bigint prodT = 1;
+  def oldring = basering;
+  list primel;
+  for (i = 1; i <= size(l); i++)
+  {
+    def S = l[i].r_outputideal;
+    setring S;
+    primel[i] = char(S);
+    prod = prod * char(S);
+    if (i == size(l) - 1)
+    {
+      prodT = prod;
+    }
+    ideal J = l[i].outputideal;
+    setring oldring;
+    ideal J = fetch(S, J);
+    setring S;
+    kill J;
+    setring oldring;
+    kill S;
+    r[i] = J;
+    kill J;
+  }
+
+  if (size(#) > 0) // second argument present, perform test
+  {
+    ideal crtideal = chinrem(list(r[1..size(l)-1]), intvec(primel[1..size(l)-1]));
+    ideal fideal = farey(crtideal, prodT);
+    attrib(fideal,"isSB",1);
+    ideal crtideal2 = chinrem(list(crtideal, r[size(l)]), list(prodT, primel[size(l)]));
+    ideal fideal2 = farey(crtideal2, prod);
+    attrib(fideal2,"isSB",1);
+    if ((size(reduce(fideal,fideal2))==0) and (size(reduce(fideal2,fideal))==0))
+    {
+      return(fideal);
+    }
+    else
+    {
+      ERROR("Inconsistent lift");
+    }
+  }
+  else // second argument not present
+  {
+    ideal crtideal = chinrem(list(r[1..size(l)]), intvec(primel[1..size(l)]));
+    ideal fideal = farey(crtideal, prod);
+    return(fideal);
+  }
+}

@@ -7,7 +7,7 @@
 
 #include <stdexcept>
 
-namespace singular_smoothness
+namespace singular_parallel
 {
   namespace
   {
@@ -57,7 +57,17 @@ namespace singular_smoothness
     {
       return installation_path / "libexec" / "workflow";
     }
-    boost::filesystem::path workflow_file
+    boost::filesystem::path workflow_all_file
+      (boost::filesystem::path const& installation_path)
+    {
+      return workflow_path (installation_path) / "parallel_all.pnet";
+    }
+    boost::filesystem::path workflow_first_file
+      (boost::filesystem::path const& installation_path)
+    {
+      return workflow_path (installation_path) / "parallel_first.pnet";
+    }
+    boost::filesystem::path workflow_smoothness_file
       (boost::filesystem::path const& installation_path)
     {
       return workflow_path (installation_path) / "smoothness.pnet";
@@ -66,7 +76,7 @@ namespace singular_smoothness
 
   installation::installation()
     : installation
-        (fhg::util::executable_path().parent_path().parent_path())
+        (SP_INSTALL_PATH)
   {}
 
   installation::installation (boost::filesystem::path const& ip)
@@ -83,18 +93,27 @@ namespace singular_smoothness
     //! \todo more detailed tests!?
     check_is_directory (gspc_home (_gspc_path));
     check_is_directory (workflow_path (_path));
-    check_is_file (workflow());
+    check_is_file (workflow_all());
+    check_is_file (workflow_first());
+    check_is_file (workflow_smoothness());
   }
 
-  boost::filesystem::path installation::workflow() const
+  boost::filesystem::path installation::workflow_all() const
   {
-    return workflow_file (_path);
+    return workflow_all_file (_path);
+  }
+  boost::filesystem::path installation::workflow_first() const
+  {
+    return workflow_first_file (_path);
+  }
+  boost::filesystem::path installation::workflow_smoothness() const
+  {
+    return workflow_smoothness_file (_path);
   }
   boost::filesystem::path installation::workflow_dir() const
   {
     return workflow_path (_path);
   }
-
   gspc::installation installation::gspc_installation
     (boost::program_options::variables_map& vm) const
   {

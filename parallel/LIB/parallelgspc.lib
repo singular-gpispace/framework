@@ -1,0 +1,150 @@
+///////////////////////////////////////
+version="version parallelgspc.lib 0.3 Jun_2021 ";
+category="Algebraic geometry";
+info="
+LIBRARY: parallelgspc.lib  wait_first and wait_all with GPI-Space
+
+OVERVIEW:
+This library contains SINGULAR procedures for the wait_first and wait_all patterns of the Singular/GPI-Space framework.
+
+TYPES:
+configToken          general configuration token type
+gspcConfigToken      configuration token for GPI-Space
+parellelConfigToken  configuration token for the transition procedure
+
+PROCEDURES:
+configure_gspc()                               generates standard config token for GPI-Space
+configure_parallel()                           generates standard config token for the transition procedure
+generateIOTokenTypes(configToken)              register the user-defined types for input and output
+gspc_wait_first(list,configToken,configToken)  call the wait_first pattern
+gspc_wait_all(list,configToken,configToken)    call the wait_all pattern
+";
+
+proc mod_init()
+{
+  LIB "libSINGULAR-parallel-module.so";
+  newstruct("configToken", "string tokentype, def options");
+  newstruct("gspcConfigToken", "string tmpdir, string nodefile, int procspernode, string rifstrategy, string loghost, int logport, list addargs, string loghostfile");
+  newstruct("parallelConfigToken", "string InTokenTypeName, string InTokenTypeDescription, string OutTokenTypeName, string OutTokenTypeDescription, string loadlib, string transitionProcedure");
+}
+
+proc configure_gspc()
+"USAGE: configure_gspc()
+RETURN: a configToken containing a gspcConfigToken with the standard configuration for GPI-Space
+"
+{
+  gspcConfigToken gc;
+  gc.rifstrategy = "ssh";
+  configToken ct;
+  ct.tokentype = "gspcConfigToken";
+  ct.options = gc;
+  return(ct);
+}
+
+proc configure_parallel()
+"USAGE: configure_parallel()
+RETURN: a configToken containing a parallelConfigToken with the standard configuration for the
+wait_first and wait_all patterns.
+"
+{
+  parallelConfigToken pc;
+  configToken ct;
+  ct.tokentype = "parallelConfigToken";
+  ct.options = pc;
+  return(ct);
+}
+
+static proc parallel_wait(list l, configToken gc, configToken pc, string a)
+{
+  if ((typeof(gc.options) != "gspcConfigToken") || (typeof(pc.options) != "parallelConfigToken"))
+  {
+    ERROR("wrong config token types");
+  }
+  if (gc.options.logport != 0) // logging requested
+  {
+    if (gc.options.loghost == "") // no hostname given, so read from file
+    {
+      if (gc.options.loghostfile == "")
+      {
+        ERROR("logging requested, no loghost and no loghostfile given");
+      }
+      string loghost = read(gc.options.loghostfile);
+      if ((loghost == "") || (loghost == newline))
+      {
+        ERROR("no hostname in loghostfile");
+      }
+      if (loghost[size(loghost)] == newline) // delete trailing LF
+      {
+        loghost = loghost[1..(size(loghost)-1)];
+      }
+      gc.options.loghost = loghost;
+    }
+    list logopt = list("--log-host", gc.options.loghost, "--log-port", string(gc.options.logport));
+    gc.options.addargs = gc.options.addargs + logopt;
+  }
+  if (system("getenv", "LD_LIBRARY_PATH") != "")
+  {
+    list ldpathopt = list("--worker-env-copy-variable", "LD_LIBRARY_PATH");
+    gc.options.addargs = gc.options.addargs + ldpathopt;
+  }
+  string tmpdir;
+  if (gc.options.tmpdir[1] == "/")
+  {
+    tmpdir = gc.options.tmpdir;
+  }
+  else
+  {
+    tmpdir = system("getenv", "PWD") + "/" + gc.options.tmpdir;
+  }
+  string loadlib;
+  if (pc.options.loadlib[1] == "/")
+  {
+    loadlib = pc.options.loadlib;
+  }
+  else
+  {
+    loadlib = system("getenv", "PWD") + "/" + pc.options.loadlib;
+  }
+  if (a == "all")
+  {
+    def sm_result = sggspc_wait_all(l, tmpdir, gc.options.nodefile, gc.options.procspernode, gc.options.rifstrategy, gc.options.addargs, pc.options.InTokenTypeName, pc.options.InTokenTypeDescription, pc.options.OutTokenTypeName, pc.options.OutTokenTypeDescription, loadlib, pc.options.transitionProcedure);
+    return(sm_result);
+  }
+  if (a == "first")
+  {
+    def sm_result = sggspc_wait_first(l, tmpdir, gc.options.nodefile, gc.options.procspernode, gc.options.rifstrategy, gc.options.addargs, pc.options.InTokenTypeName, pc.options.InTokenTypeDescription, pc.options.OutTokenTypeName, pc.options.OutTokenTypeDescription, loadlib, pc.options.transitionProcedure);
+    return(sm_result);
+  }
+}
+
+proc gspc_wait_first(list l, configToken gc, configToken pc)
+"USAGE: gspc_wait_first(l, gc, sc); l list, gc configToken, sc configToken
+RETURN: the outputToken containing the result of the transition procedure applied to that
+input token of l that finished first
+NOTE: The configTokens in the second and third argument must contain a gspcConfigToken and,
+respectively, a parallelConfigToken.
+"
+{
+  return(parallel_wait(l, gc, pc, "first"));
+}
+
+proc gspc_wait_all(list l, configToken gc, configToken pc)
+"USAGE: gspc_wait_all(l, gc, sc); l list, gc configToken, sc configToken
+RETURN: a list of all outputTokens returned by the transition procedure, applied to each
+input token of l
+NOTE: The configTokens in the second and third argument must contain a gspcConfigToken and,
+respectively, a parallelConfigToken.
+"
+{
+  return(parallel_wait(l, gc, pc, "all"));
+}
+
+proc generateIOTokenTypes(configToken pc)
+"USAGE: generateIOTokenTypes(pc); pc configToken
+RETURN: no output
+NOTE: The configToken must contain a parallelConfigToken.
+"
+{
+  newstruct(pc.options.InTokenTypeName, pc.options.InTokenTypeDescription);
+  newstruct(pc.options.OutTokenTypeName, pc.options.OutTokenTypeDescription);
+}

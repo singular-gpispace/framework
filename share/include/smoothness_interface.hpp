@@ -6,9 +6,9 @@
 #include <string>
 #include <list>
 
-#include <gen/pnetc/type/smoothness_task.hpp>
-#include <gen/pnetc/type/jacobi_task.hpp>
-#include <gen/pnetc/type/jacobi_list.hpp>
+#include <gen_smoothness.pnet/pnetc/type/smoothness_task.hpp>
+#include <gen_smoothness.pnet/pnetc/type/jacobi_task.hpp>
+#include <gen_smoothness.pnet/pnetc/type/jacobi_list.hpp>
 
 NO_NAME_MANGLING
 void singular_smoothness_trivial ( pnetc::type::smoothness_task::smoothness_task&

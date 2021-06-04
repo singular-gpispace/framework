@@ -1,0 +1,40 @@
+///////////////////////////////////////
+version="version gspccomputestd.lib 0.1 Jun_2021 ";
+category="Algebraic geometry";
+info="
+LIBRARY: gspcmodstd.lib  demo procedures for wait_first pattern
+
+OVERVIEW:
+This library contains SINGULAR procedures to demonstrate the wait_first pattern of the Singular/GPI-Space framework.
+The newstruct types inputToken and outputToken must be defined as in README.md.
+
+PROCEDURES:
+computeStd(inputToken)  computes a standard basis with respect to a given ordering
+";
+
+
+LIB "ring.lib";
+
+proc computeStd(inputToken input)
+"USAGE: computeStd(input); input inputToken
+RETURN: an outputToken output containing a standard basis of the ideal input.I with respect to the ordering
+input.ordering and the weight vector input.v
+NOTE: The types inputToken and outputToken are identical and defined in README.md. This procedure is intended
+to be called as a transition procedure inside the worker process (that is, the "inner" instances of SINGULAR).
+"
+{
+  def R = input.r_I;
+  setring R;
+  ideal I = input.I;
+  def S = changeord(list(list(input.ordering, input.v)));
+  setring S;
+  ideal I = fetch(R, I);
+  I = std(I);
+  setring R;
+  I = fetch(S, I);
+  outputToken output;
+  output.I = I;
+  output.ordering = input.ordering;
+  output.v = input.v;
+  return(output);
+}; 

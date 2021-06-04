@@ -1,7 +1,7 @@
 #include <Singular/libsingular.h>
 #include <kernel/oswrapper/timer.h>
 
-#include <share/include/interface.hpp>
+#include <share/include/smoothness_interface.hpp>
 
 #include <algorithm>
 #include <chrono>
@@ -18,12 +18,12 @@
 #include <utility>
 #include <vector>
 
-#include <gen/pnetc/type/smoothness_task.hpp>
-#include <gen/pnetc/type/jacobi_task.hpp>
-#include <gen/pnetc/type/jacobi_list.hpp>
+#include <gen_smoothness.pnet/pnetc/type/smoothness_task.hpp>
+#include <gen_smoothness.pnet/pnetc/type/jacobi_task.hpp>
+#include <gen_smoothness.pnet/pnetc/type/jacobi_list.hpp>
 #include <we/type/value/wrap.hpp>
 #include <we/type/value/unwrap.hpp>
-#include <pnetc/type/jacobi_task/op.hpp>
+#include <gen_smoothness.pnet/pnetc/type/jacobi_task/op.hpp>
 
 #include "config.hpp"
 #include "singular_commands.hpp"
