@@ -5,12 +5,12 @@
 #include <string>
 
 NO_NAME_MANGLING
-void singular_parallel_all_compute ( std::string const&
-                                   , unsigned int const&
-                                   , std::string const&
-                                   , std::string const&
-                                   , std::string const&
-                                   , std::string const&
-                                   , std::string const&
-                                   , std::string const&
-                                   );
+void singular_parallel_compute ( std::string const&
+                               , std::string const&
+                               , std::string const&
+                               , std::string const&
+                               , std::string const&
+                               , std::string const&
+                               , std::string const&
+                               , std::string const&
+                               );

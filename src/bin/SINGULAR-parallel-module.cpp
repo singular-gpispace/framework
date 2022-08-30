@@ -8,13 +8,17 @@
 #include <drts/drts.hpp>
 #include <drts/scoped_rifd.hpp>
 
-#include <util-generic/executable_path.hpp>
 #include <util-generic/print_exception.hpp>
 #include <util-generic/read_lines.hpp>
 
 #include "Singular/libsingular.h"
 
 #include "../../parallel/singular_functions.hpp"
+
+#include "scoped_sigchld_default.hpp"
+
+typedef boost::filesystem::path
+  (singular_parallel::installation::*workflow_fn)() const;
 
 namespace
 {
@@ -97,7 +101,6 @@ namespace
       std::string neededLibrary() const;
       std::string functionName() const;
 
-      singular_parallel::installation singPI() const;
       lists argList() const;
       lists addArgsList() const;
     private:
@@ -119,8 +122,6 @@ namespace
       std::string functionname;
       int out_token;
       std::string base_filename;
-
-      singular_parallel::installation singular_parallel_installation;
   };
 
 
@@ -176,10 +177,6 @@ namespace
 
   std::string ArgumentState::functionName() const {
     return functionname;
-  }
-
-  singular_parallel::installation ArgumentState::singPI() const {
-    return singular_parallel_installation;
   }
 
   lists ArgumentState::argList() const {
@@ -248,7 +245,6 @@ namespace
                                                "function name"))
   , out_token (fetch_token_value_from_sing_scope (outstructname))
   , base_filename (tmpdir + "/sggspc")
-  , singular_parallel_installation ()
   {
     if (out_token == 0)
     {
@@ -264,7 +260,7 @@ void sggspc_print_current_exception (std::string s)
 }
 
 std::optional<std::multimap<std::string, pnet::type::value::value_type>>
-                    gpis_launch_with_workflow (boost::filesystem::path workflow,
+                    gpis_launch_with_workflow (workflow_fn workflow,
                     ArgumentState const &as)
 try
 {
@@ -331,10 +327,6 @@ try
   std::string const topology_description
     ("worker:" + std::to_string (as.procsPerNode())); // here, only one type
 
-  boost::filesystem::path const implementation
-    (as.singPI().workflow_dir() /
-     "libparallel_implementation.so");
-
   boost::program_options::options_description options_description;
   options_description.add_options() ("help", "Display this message");
   options_description.add (gspc::options::logging());
@@ -358,8 +350,18 @@ try
     return std::nullopt;
   }
 
+  vm.notify();
+
+  singular_parallel::installation const singular_parallel_installation (vm);
+
   gspc::installation const gspc_installation
-    (as.singPI().gspc_installation (vm));
+    (singular_parallel_installation.gspc_installation());
+
+  boost::filesystem::path const implementation
+    (singular_parallel_installation.workflow_dir() /
+     "libparallel_implementation.so");
+
+  scoped_sigchld_default no_sigchld;
 
   gspc::scoped_rifds const scoped_rifd
     ( gspc::rifd::strategy
@@ -400,7 +402,7 @@ try
 
   std::multimap<std::string, pnet::type::value::value_type> result
     ( gspc::client (drts).put_and_run
-      ( gspc::workflow (workflow)
+      ( gspc::workflow ((singular_parallel_installation.*workflow)())
       , { {"implementation", implementation.string()}
         , {"base_filename", as.baseFileName()}
         , {"function_name", as.functionName()}
@@ -427,7 +429,8 @@ try {
 
   ArgumentState as (args);
 
-  auto result = gpis_launch_with_workflow (as.singPI().workflow_all(), as);
+  auto result = gpis_launch_with_workflow
+    (&singular_parallel::installation::workflow_all, as);
   if (!result.has_value()) {
     res->rtyp = NONE;
     return FALSE;
@@ -473,7 +476,8 @@ try
 {
   ArgumentState as (args);
 
-  auto result = gpis_launch_with_workflow (as.singPI().workflow_first(), as);
+  auto result = gpis_launch_with_workflow
+    (&singular_parallel::installation::workflow_first, as);
   if (!result.has_value()) {
     res->rtyp = NONE;
     return FALSE;

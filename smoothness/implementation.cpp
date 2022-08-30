@@ -837,13 +837,13 @@ void singular_smoothness_descent ( pnetc::type::smoothness_task::smoothness_task
     poly g_cand = NULL;
     for (unsigned long i = 0; i < num_variety; ++i)
     {
-      number n = n_Init (draw_random_integer (rnd_coeff_max), currRing);
-      if (!n_IsZero (n, currRing))
+      number n = n_Init (draw_random_integer (rnd_coeff_max), currRing->cf);
+      if (!n_IsZero (n, currRing->cf))
       {
         poly summand = pp_Mult_nn (variety_ideal->m[i], n, currRing);
         g_cand = p_Add_q (g_cand, summand, currRing);
       }
-      n_Delete (&n, currRing);
+      n_Delete (&n, currRing->cf);
     }
     poly remainder = kNF (ambient_ideal_std, currRing->qideal, g_cand);
     bool in_ambient_ideal = (remainder == NULL);

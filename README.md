@@ -7,7 +7,7 @@ The Singular/GPI-Space Framework has been used, for example, to determine smooth
 For more information, see the webpage of the [Singular/GPI-Space Framework](https://www.mathematik.uni-kl.de/~boehm/singulargpispace/).
 
 
-With an [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) now available, this repository is the ongoing effort to make our code publicly available, this being the second main version and part of the code. It contains basic infrastructure and, as an example, the code to test smoothness of algebraic varieties. Moreover, it contains convenient predefined workflows for wait all and wait first algorithmic structures. 
+With an [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) now available, this repository is the ongoing effort to make our code publicly available, this being the second main version and part of the code. It contains basic infrastructure and, as an example, the code to test smoothness of algebraic varieties. Moreover, it contains convenient predefined workflows for wait all and wait first algorithmic structures.
 
 For details on the smoothness test, please refer to the papers [Towards Massively Parallel Computations in Algebraic Geometry](https://link.springer.com/article/10.1007/s10208-020-09464-x), Found. Comput. Math. (2020).
 
@@ -20,7 +20,6 @@ as well as [Singular](https://www.singular.uni-kl.de/), [GPI-Space](http://www.g
 In the following, we give detailed step-by-step instructions how to install the Singular/GPI-Space framework on a Linux System and give examples how to use it, considering the smoothness test, wait all and wait first. This includes the installation of Singular, GPI-Space and of the necessary dependencies (for more details on this, please also refer to the respective web pages and repositories).
 
 GPI-Space currently actively supports and tests the following Linux distributions:
-* Centos 6
 * Centos 7
 * Centos 8
 * Ubuntu 18.04 LTS
@@ -121,8 +120,10 @@ We install libssh since GPI-Space may run into problems on some systems when usi
 
 ```bash
 cd ${build_ROOT}
-export Libssh2_ROOT=${install_ROOT}/libssh
+Libssh2_ROOT=${install_ROOT}/libssh
 libssh2_version=1.9.0
+
+export PKG_CONFIG_PATH="${Libssh2_ROOT}/lib/pkgconfig:${Libssh2_ROOT}/lib64/pkgconfig"${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}
 
 git clone                                \
   --jobs $(nproc)                        \
@@ -136,7 +137,8 @@ cmake -D CRYPTO_BACKEND=OpenSSL                 \
       -D CMAKE_BUILD_TYPE=Release               \
       -D CMAKE_INSTALL_PREFIX="${Libssh2_ROOT}" \
       -D ENABLE_ZLIB_COMPRESSION=ON             \
-      -D BUILD_SHARED_LIBS=ON                   \
+      -D BUILD_SHARED_LIBS=ON                  \
+      -D CMAKE_POSITION_INDEPENDENT_CODE=ON     \
       -D BUILD_TESTING=OFF                      \
       -B libssh2/build                          \
       -S libssh2
@@ -145,13 +147,13 @@ cmake --build libssh2/build --target install -j $(nproc)
 
 ## Install GPI-2:
 
-We install [GPI-2](http://www.gpi-site.com/), an API for the development of scalable, asynchronous and fault tolerant parallel applications developed by Frauhofer ITWM, which will be used by GPI-Space. 
+We install [GPI-2](http://www.gpi-site.com/), an API for the development of scalable, asynchronous and fault tolerant parallel applications developed by Frauhofer ITWM, which will be used by GPI-Space.
 
 ```bash
 cd ${build_ROOT}
 mkdir ${install_ROOT}/GPI2
 export GASPI_ROOT=${install_ROOT}/GPI2
-gpi2_version=1.3.2
+gpi2_version=1.3.3
 git clone                                                                 \
     --depth 1                                                             \
     --branch v${gpi2_version}                                             \
@@ -167,36 +169,36 @@ export PKG_CONFIG_PATH="${GASPI_ROOT}/lib64/pkgconfig"${PKG_CONFIG_PATH:+:${PKG_
 
 Remark: This code assumes that the system to be used does not use Infiniband.
 
-Remark: If you are using GCC 10, you might have to add `-fcommon` to all three `CFLAGS` variables in `src/make.inc`.
-
 ## Install GPI-Space
 
-We install GPI-Space version 21.03, which will be used by our framework.
+We install GPI-Space version 22.06, which will be used by our framework.
 
 Besides boost, GPI-2, and libssh, it has various, more standard, dependencies, which are usually available through the package manager of your distribution. Please refer also to the installation instructions of the [open source version of GPI-Space](https://github.com/cc-hpc-itwm/gpispace) for more details.
 
-The follwing code assumes that the environment variables `Libssh2_ROOT` (for libssh), `BOOST_ROOT` (for Boost) and `PKG_CONFIG_PATH` (for GPI-2) are still set. It, moreover, assumes that the unit and system tests of GPI-Space are built. 
+The follwing code assumes that the environment variables `BOOST_ROOT` (for Boost) and `PKG_CONFIG_PATH` (for libssh and GPI-2) are still set. It, moreover, assumes that the unit and system tests of GPI-Space are built.
+
+Remark: If the installation process seems to prefer a system-wide installed boost, you can set the CMake option `-D Boost_NO_BOOST_CMAKE=on` (see also the GPI-Space documentation).
 
 Remark: If you want to save compilation time, you can install GPI-Space without testing enabled by not setting `build_tests`.
 
 ```bash
 cd ${build_ROOT}
-gpispace_version=21.03
+gpispace_version=22.06
 build_tests="-DBUILD_TESTING=on -DSHARED_DIRECTORY_FOR_TESTS=${install_ROOT}/gspctest"
 export GPISpace_ROOT=${install_ROOT}/gpispace
 
 wget "https://github.com/cc-hpc-itwm/gpispace/archive/v${gpispace_version}.tar.gz" \
   -O "gpispace-v${gpispace_version}.tar.gz"
 tar xf "gpispace-v${gpispace_version}.tar.gz"
+export GPISPACE_REPO=${build_ROOT}/gpispace-${gpispace_version}
 
 cmake -D CMAKE_INSTALL_PREFIX="${GPISpace_ROOT}"  \
-      -B "gpispace-${gpispace_version}/build"     \
-      -S "gpispace-${gpispace_version}"           \
-      -D CMAKE_FIND_PACKAGE_PREFER_CONFIG=ON      \
+      -B "${GPISPACE_REPO}/build"                 \
+      -S "${GPISPACE_REPO}"                       \
       ${build_tests:-}
 
-cmake --build "gpispace-${gpispace_version}/build" \
-      --target install                             \
+cmake --build "${GPISPACE_REPO}/build"            \
+      --target install                            \
       -j $(nproc)
 ```
 
@@ -216,7 +218,7 @@ The following is a short test for GPI-Space. It also creates a nodefile, which w
 mkdir -p ${install_ROOT}/gspctest
 cd ${install_ROOT}
 hostname > nodefile
-cd "${build_ROOT}/gpispace-${gpispace_version}/build"
+cd "${GPISPACE_REPO}/build"
 export GSPC_NODEFILE_FOR_TESTS="${install_ROOT}/nodefile"
 ```
 
@@ -240,15 +242,12 @@ We assume that the environment variable `GPISpace_ROOT` is set as above.
 
 ```bash
 cd ${build_ROOT}
+
 git clone https://github.com/singular-gpispace/framework.git
-for i in cmake src/util-generic src/fhg/util/boost/program_options
-do
-  mkdir -p framework/${i}
-  cp -R gpispace-${gpispace_version}/${i}/* framework/${i}
-done
 cmake -D CMAKE_INSTALL_PREFIX=${install_ROOT}/framework \
       -D CMAKE_BUILD_TYPE=Release                       \
       -D SINGULAR_HOME=${install_ROOT}/Singular420      \
+      -D Boost_NO_BOOST_CMAKE=on                        \
       -B framework_build                                \
       -S framework
 cmake --build framework_build --target install -j $(nproc)
@@ -310,7 +309,7 @@ This
   * sets how many processes per node should be started (in the field options.procspernode, usually one process per core, not taking hyper-threading into account; you may have to adjust according to your hardware),
 * creates a configuration token for the smoothness test,
   * adds information on whether the input ideal is to be considered in projective space or affine space (in the field options.projective), and
-  * at which codimension the descent with Hironaka's criterion should stop and the standard Jacobian cirterion should be used (in the field options.codimlimit), and finally
+  * at which codimension the descent with Hironaka's criterion should stop and the standard Jacobian criterion should be used (in the field options.codimlimit), and finally
 * starts the computation.
 
 Note that in more fancy environments like a cluster, one should specify absolute paths to the nodefile and the temp directory.
@@ -419,7 +418,7 @@ LIB "parallelgspc.lib";
 ```
 
 
-In the following code, a ideal I in a polynomial ring of characteristic zero with three variables is generated in a random way. Then, in parallel, the ideal is reduced modulo num_primes=8 different primes p_i by reducing its generators (the primes are chosen, using the function primeList() from modstd.lib, such that the reduction is well-defined, that is, the denominators are coprime to the all p_i). This is followed by a computation of the respective standard bases. 
+In the following code, a ideal I in a polynomial ring of characteristic zero with three variables is generated in a random way. Then, in parallel, the ideal is reduced modulo num_primes=8 different primes p_i by reducing its generators (the primes are chosen, using the function primeList() from modstd.lib, such that the reduction is well-defined, that is, the denominators are coprime to the all p_i). This is followed by a computation of the respective standard bases.
 The Chinese Remainder Theorem is then applied to lift the result to $\mathbb{Z}/n$ with n the product of the p_i, and this result is lifted to the rationals using the Farey map. In order to allow for a plausibility check, only the first num_primes - 1 = 7 ideals are used. If the function liftIdeals is called with the additional argument 1, the result is compared to the one obtained from using num_primes=8 primes. If this is the case, the result is very likely a standard basis over the rationals (however this is not a proof).
 
 Note that gspcmodstd.lib provides both the procedure used in the workers as some auxiliary procedures used in the user interface Singular. This is why we have to load it also in the user interface Singular. The library is being automatically loaded in the worker Singulars, as specified in the token pc.
@@ -484,7 +483,7 @@ In our example, a standard basis for a random ideal is computed with respect to 
 
 Note that the length of the integer vector which can be specified in addition to the name of the ordering should agree with the number of variables of the polynomial ring. In case of weighted orderings, one can specify in this vector integer weights for the variables.
 
-We assume that the nodefile and the temporary directory have been created as described above and, optionally, the gspc-monitor has been started as described above. 
+We assume that the nodefile and the temporary directory have been created as described above and, optionally, the gspc-monitor has been started as described above.
 
 We copy the library providing the Singular procedure to be used to the installation directory:
 
@@ -567,6 +566,7 @@ Note that the following requires root privileges. If you do not have root access
   ```bash
   sudo apt-get install build-essential autoconf autogen libtool libreadline6-dev libglpk-dev cmake gawk
   ```
+  Remark: On Ubuntu 18.04, you will have to install a more recent version of CMake (>= 3.15). You can build CMake from source or download pre-compiled binaries via [CMake](https://cmake.org/).
 
 * Scientific libraries used by Singular:
   ```bash
@@ -599,4 +599,5 @@ Note that the following requires root privileges. If you do not have root access
   Or everything in one command:
   ```bash
   sudo apt-get install openssh-server hwloc libhwloc-dev libudev-dev qt5-default chrpath
-  ```      
+  ```
+  Remark: On newer versions of Debian/Ubuntu, the Qt packages are named differently, you might have to install `qtbase5-dev`.

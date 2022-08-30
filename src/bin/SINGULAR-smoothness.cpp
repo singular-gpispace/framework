@@ -6,11 +6,11 @@
 
 #include <we/type/value/show.hpp>
 
-#include <fhg/util/boost/program_options/validators/nonempty_file.hpp>
-#include <fhg/util/boost/program_options/validators/positive_integral.hpp>
-#include <fhg/util/boost/program_options/validators/nonempty_string.hpp>
-#include <fhg/util/boost/program_options/validators/existing_directory.hpp>
-#include <fhg/util/boost/program_options/validators/nonexisting_path_in_existing_directory.hpp>
+#include <util-generic/boost/program_options/validators/nonempty_file.hpp>
+#include <util-generic/boost/program_options/validators/positive_integral.hpp>
+#include <util-generic/boost/program_options/validators/nonempty_string.hpp>
+#include <util-generic/boost/program_options/validators/existing_directory.hpp>
+#include <util-generic/boost/program_options/validators/nonexisting_path_in_existing_directory.hpp>
 
 #include <util-generic/executable_path.hpp>
 #include <util-generic/print_exception.hpp>
@@ -38,8 +38,6 @@ namespace
 int main (int argc, char** argv)
 try
 {
-  singular_parallel::installation const singular_smoothness_installation;
-
   namespace validators = fhg::util::boost::program_options;
 
   boost::program_options::options_description options_general ("General");
@@ -112,6 +110,8 @@ try
 
   vm.notify();
 
+  singular_parallel::installation const singular_smoothness_installation (vm);
+
   boost::filesystem::path const installation_path
     (fhg::util::executable_path().parent_path().parent_path());
   boost::filesystem::path const implementation //! \todo: configure
@@ -133,7 +133,7 @@ try
   int const logging_level
     (vm.at (option::name::sg_log_level).as<int>());
   gspc::installation const gspc_installation
-    (singular_smoothness_installation.gspc_installation (vm));
+    (singular_smoothness_installation.gspc_installation());
   //std::cout << "DEBUG: will now set up scoped rif" << std::endl;
   gspc::scoped_rifds const scoped_rifd ( gspc::rifd::strategy {vm}
                                       , gspc::rifd::hostnames {vm}
@@ -168,7 +168,7 @@ try
       )
     );
   //std::cout << "DEBUG: put_and_run finished, will now return result" << std::endl;
-  for ( std::pair<std::string, pnet::type::value::value_type> const& kv
+  for ( std::pair<const std::string, pnet::type::value::value_type> const& kv
       : result
       )
   {

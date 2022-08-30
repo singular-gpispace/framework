@@ -38,7 +38,6 @@ add_petrinet(parallel_all.xpnet parallel_all.pnet parallel_all)
 add_petrinet(parallel_first.xpnet parallel_first.pnet parallel_first)
 add_petrinet(smoothness.xpnet smoothness.pnet smoothness)
 
-
 install (FILES
   "${CMAKE_BINARY_DIR}/parallel_all.pnet"
   "${CMAKE_BINARY_DIR}/parallel_first.pnet"

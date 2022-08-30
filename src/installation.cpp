@@ -57,6 +57,12 @@ namespace singular_parallel
     {
       return installation_path / "libexec" / "workflow";
     }
+    boost::filesystem::path libraries_path
+      (boost::filesystem::path const& installation_path)
+    {
+      return installation_path / "libexec" / "workflow";
+    }
+
     boost::filesystem::path workflow_all_file
       (boost::filesystem::path const& installation_path)
     {
@@ -74,21 +80,8 @@ namespace singular_parallel
     }
   }
 
-  installation::installation()
-    : installation
-        (SP_INSTALL_PATH)
-  {}
-
-  installation::installation (boost::filesystem::path const& ip)
-    : installation ( ip
-                   , fhg::util::executable_path
-                       (gspc::set_gspc_home).parent_path().parent_path()
-                   )
-  {}
-
-  installation::installation (boost::filesystem::path const& ip,
-    boost::filesystem::path const& gp)
-    : _path (ip), _gspc_path (gp)
+  installation::installation (boost::program_options::variables_map const& vm)
+    : _path (SP_INSTALL_PATH), _gspc_path (GSPC_HOME)
   {
     //! \todo more detailed tests!?
     check_is_directory (gspc_home (_gspc_path));
@@ -96,6 +89,15 @@ namespace singular_parallel
     check_is_file (workflow_all());
     check_is_file (workflow_first());
     check_is_file (workflow_smoothness());
+
+    gspc::set_gspc_home
+      ( const_cast<boost::program_options::variables_map&> (vm)
+      , gspc_home (_gspc_path)
+      );
+    gspc::set_application_search_path
+      ( const_cast<boost::program_options::variables_map&> (vm)
+      , libraries_path (_path)
+      );
   }
 
   boost::filesystem::path installation::workflow_all() const
@@ -114,12 +116,8 @@ namespace singular_parallel
   {
     return workflow_path (_path);
   }
-  gspc::installation installation::gspc_installation
-    (boost::program_options::variables_map& vm) const
+  gspc::installation installation::gspc_installation() const
   {
-    gspc::set_gspc_home (vm, gspc_home (_gspc_path));
-    gspc::set_application_search_path (vm, workflow_path (_path));
-
-    return {vm};
+    return {gspc_home (_gspc_path)};
   }
 }

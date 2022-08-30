@@ -132,11 +132,13 @@
             _pnetc_context->execute_and_kill_on_cancel_DO_NOT_OUTPUT_TO_STANDARD_STREAMS_FROM_WITHIN
               ( [implementation, in, options]()
                 {
+                  const std::string in_filename (in.base_filename + ".i" + std::to_string (in.id));          
+                  const std::string out_filename (in.base_filename + ".o" + std::to_string (in.id));
                   fhg::util::scoped_dlhandle
                     (implementation, RTLD_GLOBAL | RTLD_NOW | RTLD_DEEPBIND)
-                    .sym<decltype (singular_parallel_all_compute)> ("singular_parallel_all_compute")
-                      ( in.base_filename, in.id
-                      , options.function_name, options.needed_library
+                    .sym<decltype (singular_parallel_compute)> ("singular_parallel_compute")
+                      ( options.function_name, options.needed_library
+                      , in_filename, out_filename
                       , options.in_struct_name, options.in_struct_desc
                       , options.out_struct_name, options.out_struct_desc
                       );

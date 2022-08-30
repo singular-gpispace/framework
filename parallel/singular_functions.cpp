@@ -243,3 +243,57 @@ std::pair<int, lists> call_user_proc (std::string const& function_name,
   scoped_leftv arg (in_type, lCopy (in_lst));
   return proc<lists> (symbol (needed_library, function_name), arg);
 }
+
+void ssi_write_ring (si_link l, ring r, bool is_setring)
+{
+  ssiInfo *d = static_cast<ssiInfo*> (l->data);
+  int res = is_setring ? fputs ("15 ", d->f_write) : fputs ("5 ", d->f_write);
+  if (res <= 0)
+  {
+    throw std::runtime_error ("ssi write of ring failed");
+  }
+  ssiWriteRing_R (d, r); // void function
+  fputc ('\n', d->f_write);
+  fflush (d->f_write);
+}
+
+void ssi_write_ideal (si_link l, ring r, ideal I)
+{
+  // does not write ring first
+  ssiInfo *d = static_cast<ssiInfo*> (l->data);
+  int res = fputs ("7 ", d->f_write);
+  if (res <= 0)
+  {
+    throw std::runtime_error ("ssi write of ideal failed");
+  }
+  ssiWriteIdeal_R (d, IDEAL_CMD, I, r); // is void function
+  fputc ('\n', d->f_write);
+  fflush (d->f_write);
+}
+
+void ssi_write_list (si_link l, lists lst)
+{
+  // for non-ring-dependent list
+  ssiInfo *d = static_cast<ssiInfo*> (l->data);
+  int res = fputs ("14 ", d->f_write);
+  if (res <= 0)
+  {
+    throw std::runtime_error ("ssi write of list failed");
+  }
+  ssiWriteList (l, lst),
+  //fputc ('\n', d->f_write);
+  fflush (d->f_write);
+}
+
+void ssi_write_intmat (si_link l, intvec* iv)
+{
+  ssiInfo *d = static_cast<ssiInfo*> (l->data);
+  int res = fputs ("18 ", d->f_write);
+  if (res <= 0)
+  {
+    throw std::runtime_error ("ssi write of intmat failed");
+  }
+  ssiWriteIntmat (d, iv); // is void function
+  fputc ('\n', d->f_write);
+  fflush (d->f_write);
+}

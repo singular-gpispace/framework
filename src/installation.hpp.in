@@ -6,6 +6,7 @@
 #include <boost/program_options.hpp>
 
 #cmakedefine SP_INSTALL_PATH "@SP_INSTALL_PATH@"
+#cmakedefine GSPC_HOME "@GSPC_HOME@"
 
 namespace singular_parallel
 {
@@ -13,17 +14,13 @@ namespace singular_parallel
   class installation
   {
   public:
-    installation();
-    installation (boost::filesystem::path const&);
-    installation (boost::filesystem::path const&,
-     boost::filesystem::path const&);
+    installation (boost::program_options::variables_map const&);
 
     boost::filesystem::path workflow_all() const;
     boost::filesystem::path workflow_first() const;
     boost::filesystem::path workflow_smoothness() const;
     boost::filesystem::path workflow_dir() const;
-    gspc::installation gspc_installation
-      (boost::program_options::variables_map&) const;
+    gspc::installation gspc_installation() const;
 
   private:
     boost::filesystem::path const _path;

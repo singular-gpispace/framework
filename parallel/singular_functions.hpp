@@ -11,6 +11,10 @@
 
 // these are from ssiLink.cc
 char* ssiReadString(const ssiInfo *d);
+void ssiWriteRing_R (ssiInfo *d, const ring r);
+void ssiWriteIdeal_R (const ssiInfo *d, int typ,const ideal I, const ring R);
+void ssiWriteList (si_link l, lists dd);
+void ssiWriteIntmat(const ssiInfo *d,intvec * v);
 
 // these are from newstruct.cc
 BOOLEAN newstruct_deserialize(blackbox **, void **d, si_link f);
@@ -27,3 +31,7 @@ void ssi_write_newstruct (si_link, int, lists);
 lists ssi_read_newstruct (si_link, std::string const&);
 std::pair<int, lists> call_user_proc
   (std::string const&, std::string const&, int, lists);
+void ssi_write_ring (si_link, ring, bool = false);
+void ssi_write_ideal (si_link, ring, ideal);
+void ssi_write_list (si_link, lists);
+void ssi_write_intmat (si_link, intvec*);

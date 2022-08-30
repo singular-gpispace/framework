@@ -1,6 +1,0 @@
-/cmake/*
-!/cmake/modules
-/cmake/modules/*
-!/cmake/modules/FindSingular.cmake
-/src/util-generic
-/src/fhg/util/boost/program_options

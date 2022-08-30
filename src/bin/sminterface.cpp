@@ -20,6 +20,8 @@
 
 #include "smoothness/singular_commands.hpp"
 
+#include "scoped_sigchld_default.hpp"
+
 /* Usage in Singular
 
 LIB "${install}/lib/libSINGULAR-smoothness-sminterface.so";
@@ -90,7 +92,6 @@ static bool call_gspc_smoothtest ( ideal input_ideal
                                  , unsigned long split_heuristics_options
                                  , int logging_level
                                  , std::vector<std::string> const& options
-                                 , boost::filesystem::path installation_path
                                  )
 {
   std::string const topology_description
@@ -118,11 +119,6 @@ static bool call_gspc_smoothtest ( ideal input_ideal
   singular_write_ssi ("SMinputideal", ideal_filename);
   dechain_handle (input_ideal_handle, &(currRing->idroot));
 
-  singular_parallel::installation const singular_smoothness_installation (installation_path);
-
-  boost::filesystem::path const implementation
-    (singular_smoothness_installation.workflow_dir() / "libsmoothness_implementation.so");
-
   boost::program_options::options_description options_description;
   options_description.add_options() ("help", "Display this message");
   options_description.add (gspc::options::logging());
@@ -144,8 +140,15 @@ static bool call_gspc_smoothtest ( ideal input_ideal
 
   vm.notify();
 
+  singular_parallel::installation const singular_smoothness_installation (vm);
+
   gspc::installation const gspc_installation
-    (singular_smoothness_installation.gspc_installation (vm));
+   (singular_smoothness_installation.gspc_installation());
+
+  boost::filesystem::path const implementation
+    (singular_smoothness_installation.workflow_dir() / "libsmoothness_implementation.so");
+
+  scoped_sigchld_default no_sigchld;
 
   gspc::scoped_rifds const scoped_rifd
     ( gspc::rifd::strategy
@@ -199,7 +202,7 @@ static bool call_gspc_smoothtest ( ideal input_ideal
       )
     );
 
-  for ( std::pair<std::string, pnet::type::value::value_type> const& kv
+  for ( std::pair<const std::string, pnet::type::value::value_type> const& kv
       : result
       )
   {
@@ -252,8 +255,7 @@ try
   bool result = call_gspc_smoothtest (input_ideal, projective,
     codimension_limit, tmpdir, nodefile, procs_per_node, rif_strategy,
     desc_rnd_coeff_max, desc_rnd_tries, desc_max_zero_tries,
-    split_heuristics_options, logging_level, options,
-    fhg::util::executable_path (&smoothtest).parent_path());
+    split_heuristics_options, logging_level, options);
   res->rtyp = INT_CMD;
   res->data = reinterpret_cast<void*> (static_cast<int> (result));
   return FALSE;
