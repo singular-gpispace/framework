@@ -17,7 +17,7 @@ J. Böhm, W. Decker, A. Frühbis-Krüger, F.-J. Pfreundt, M. Rahn, L. Ristau: [T
 
 as well as [Singular](https://www.singular.uni-kl.de/), [GPI-Space](http://www.gpi-space.de/), and the respective applications.
 
-In the following, we give detailed step-by-step instructions how to install the Singular/GPI-Space framework on a Linux System and give examples how to use it, considering the smoothness test, wait all and wait first. This includes the installation of Singular, GPI-Space and of the necessary dependencies (for more details on this, please also refer to the respective web pages and repositories).
+To use the Singular/GPI-Space framework, it is necessary to install Singular, GPI-Space, their dependencies and the project code itself on a linux system. We will provide two different ways of installation. The preferred way is to use the package manager [Spack](https://spack.io/), which will take care of the dependencies automatically. In the following, we will describe how to install Spack and the framework and give examples how to use it, considering the smoothness test, wait all and wait first. A manual installation of all components is also possible, which can be used if an installation with Spack in not possible or not desirable. We will also give detailed step-by-step instructions for this approach, including the installation of Singular, GPI-Space and of the necessary dependencies (for more details on this, please also refer to the respective web pages and repositories).
 
 GPI-Space currently actively supports and tests the following Linux distributions:
 * Centos 7
@@ -27,6 +27,68 @@ GPI-Space currently actively supports and tests the following Linux distribution
 
 Similar distributions should also work. We occasionally also build on Gentoo. If you want to install on larger (pools/clusters of) machines, Centos is a good choice.
 
+## Installation with Spack
+
+We will assume that the user has some directory path to which she/he can read and write. In the following, we assume this path is set as the bash variable `software_ROOT`:
+
+```bash
+export software_ROOT=<software-root>
+
+```
+Note, this needs to be set for every new terminal session that the user wants to use for this project (or you must make sure it is set automatically).
+
+Assuming Spack is not already installed, clone it from GitHub:
+
+```bash
+git clone https://github.com/spack/spack.git $software_ROOT/spack
+```
+
+To be able to use Spack in the current terminal session, run the setup script (this must be done for every new session):
+
+```bash
+. $software_ROOT/spack/share/spack/setup-env.sh
+```
+
+Next, Spack still needs to bootstrap clingo. While this is done automatically as soon as it is needed, we let Spack do it now by conretizing any spec (this may take a while).
+
+```bash
+spack spec zlib
+```
+
+We now clone our spack-packages repository ...
+
+```bash
+git clone https://github.com/singular-gpispace/spack-packages.git \
+    $software_ROOT/spack-packages
+```
+
+... and add it to the Spack installation:
+
+```bash
+spack repo add $software_ROOT/spack-packages
+```
+
+Finally, we can install the framework:
+
+```bash
+spack install framework
+```
+
+Note that the initial installation may take quite a bit of time as all dependencies have to be built. To save some time, you could decide to build GPI-Space without the `gspc-monitor`, the graphical monitoring tool. This eliminates the need to build and install Qt. For this, you can use the following command instead:
+
+```bash
+spack install framework ^gpi-space~monitor
+```
+
+To use the framework, you now just have to load the installed software:
+
+```bash
+spack load framework
+```
+
+This also sets all required environment variables, in particular, you do not have to set a `SINGULARPATH` explicitly and you can run Singular by just typing `Singular`.
+
+The following sections describe the manual installation. If your installation via Spack has been completed, you can now continue with the example sections. Note that the instructions regarding nodefile, temporary directory and loghostfile have to be adapted accordingly.
 
 ## Source and installation directories
 
@@ -255,25 +317,14 @@ cmake --build framework_build --target install -j $(nproc)
 
 ## We try out the smoothness test.
 
-To do so, the following should be present in `${install_ROOT}`:
-* A nodefile with the machines to use (assumed to be present from testing GPI-Space).
-* The files campedelli.sing or quadric.sing with example ideals which define varieties which we will check for smoothness (these files can be found in the directory framework/smoothness-test/examples).
-
-We thus do:
-
-```bash
-cd ${install_ROOT}
-cp ${build_ROOT}/framework/examples/smoothness-test/campedelli.sing .
-cp ${build_ROOT}/framework/examples/smoothness-test/quadric.sing .
-```
+To do so, a nodefile with the machines to use the following should be present in `${install_ROOT}` (assumed to be present from testing GPI-Space).
+The files campedelli.sing or quadric.sing with example ideals which define varieties which we will check for smoothness have been installed to `${install_ROOT}/framework/share/examples/smoothness-test`.
 
 Moreover, we need a directory for temporary files, which should be accessible from all machines involved in the computation:
 
 ```bash
 mkdir ${install_ROOT}/temp
 ```
-
-
 
 * Optionally: We start the GPI-Space Monitor (to do so, you need an X-Server running) to display computations in form of a Gantt diagram.
 In case you do not want to use the monitor, you should not set in Singular the fields options.loghostfile and options.logport of the GPI-Space configuration token (see below). In order to use the GPI-Space Monitor, we need a loghostfile with the name of the machine running the monitor.
@@ -318,7 +369,7 @@ Note that this computation can take a while, a minute or so on 16 workers. It sh
 
 ```bash
 LIB "smoothtestgspc.lib";
-< "campedelli.sing";
+< "share/examples/smoothness-test/campedelli.sing";
 configToken gc = configure_gspc();
 gc.options.tmpdir = "temp";
 gc.options.nodefile = "nodefile";
@@ -334,7 +385,7 @@ The same computation including logging on the GPI-Space monitor. Here, we have t
 
 ```bash
 LIB "smoothtestgspc.lib";
-< "campedelli.sing";
+< "share/examples/smoothness-test/campedelli.sing";
 configToken gc = configure_gspc();
 gc.options.tmpdir = "temp";
 gc.options.nodefile = "nodefile";
@@ -351,7 +402,7 @@ On a smaller machine, try the following, which should finish instantaneously:
 
 ```bash
 LIB "smoothtestgspc.lib";
-< "quadric.sing";
+< "share/examples/smoothness-test/quadric.sing";
 configToken gc = configure_gspc();
 gc.options.tmpdir = "temp";
 gc.options.nodefile = "nodefile";
@@ -365,7 +416,7 @@ The same including logging:
 
 ```bash
 LIB "smoothtestgspc.lib";
-< "quadric.sing";
+< "share/examples/smoothness-test/quadric.sing";
 configToken gc = configure_gspc();
 gc.options.tmpdir = "temp";
 gc.options.nodefile = "nodefile";
@@ -388,12 +439,7 @@ Note that this example is only for demonstration purposes and does not verify th
 
 As in the previous example, some additional files are needed:
 * A nodefile with the machines to use (which we assume to present from testing GPI-Space).
-* The Singular library providing the procedure that is to be run inside the worker processes. In this example, the library also contains some procedures that are used in the user interface Singular session controlling the computation. For our example, we copy the library `gspcmodstd.lib` from the source tree to `${install_ROOT}`, so that it is available on all nodes:
-
-```bash
-cd ${install_ROOT}
-cp ${build_ROOT}/framework/examples/wait-all-first/gspcmodstd.lib .
-```
+* The Singular library providing the procedure that is to be run inside the worker processes. In this example, the library also contains some procedures that are used in the user interface Singular session controlling the computation. For our example, we use the library `gspcmodstd.lib` that has been installed to `${install_ROOT}/framework/share/examples/wait-all-first` and is thus available on all nodes.
 
 We need a directory for temporary files, which should be accessible from all machines involved in the computation and you might already have generated in the last example:
 
@@ -426,7 +472,7 @@ Note that gspcmodstd.lib provides both the procedure used in the workers as some
 ```
 LIB "random.lib";
 LIB "modstd.lib";
-LIB "gspcmodstd.lib";
+LIB "share/examples/wait-all-first/gspcmodstd.lib";
 
 
 configToken gc = configure_gspc();
@@ -443,7 +489,7 @@ pc.options.InTokenTypeName = "inputToken";
 pc.options.InTokenTypeDescription = "ideal inputideal, int characteristic";
 pc.options.OutTokenTypeName = "outputToken";
 pc.options.OutTokenTypeDescription = "ideal outputideal";
-pc.options.loadlib = "gspcmodstd.lib";
+pc.options.loadlib = system("getenv","SINGULARPATH") + "/share/examples/wait-all-first/gspcmodstd.lib";
 pc.options.transitionProcedure = "stdmodp";
 
 generateIOTokenTypes(pc);
@@ -485,12 +531,7 @@ Note that the length of the integer vector which can be specified in addition to
 
 We assume that the nodefile and the temporary directory have been created as described above and, optionally, the gspc-monitor has been started as described above.
 
-We copy the library providing the Singular procedure to be used to the installation directory:
-
-```bash
-cd ${install_ROOT}
-cp ${build_ROOT}/framework/examples/wait-all-first/gspccomputestd.lib .
-```
+As in the previous example, the library `gspccomputestd.lib` providing the Singular procedure to be used has been installed to `${install_ROOT}/framework/share/examples/wait-all-first`.
 
 After starting Singular as described above, the following Singular code starts the computation. Note that the library gspccomputestd.lib is automatically loaded in the Singular worker processes as specified in the pc token.
 
@@ -512,7 +553,7 @@ pc.options.InTokenTypeName = "inputToken";
 pc.options.InTokenTypeDescription = "ideal I, string ordering, intvec v";
 pc.options.OutTokenTypeName = "outputToken";
 pc.options.OutTokenTypeDescription = "ideal I, string ordering, intvec v";
-pc.options.loadlib = "gspccomputestd.lib";
+pc.options.loadlib = system("getenv","SINGULARPATH") + "/share/examples/wait-all-first/gspccomputestd.lib";
 pc.options.transitionProcedure = "computeStd";
 
 generateIOTokenTypes(pc);

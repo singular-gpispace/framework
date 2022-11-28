@@ -56,3 +56,7 @@ add_subdirectory (workflow)
 #  USE_SOURCE_PERMISSIONS
 #  PATTERN "share/singular/html/*" EXCLUDE
 #)
+
+install (DIRECTORY examples
+  DESTINATION "${CMAKE_INSTALL_PREFIX}/share"
+)
